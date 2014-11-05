@@ -1,4 +1,4 @@
-marketplace-modules
-===================
+marketplace-core-modules
+========================
 
-JS modules for Firefox Marketplace frontend projects
+Core JS modules for Firefox Marketplace frontend projects

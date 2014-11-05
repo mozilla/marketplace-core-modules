@@ -1,0 +1,11 @@
+{
+  "author": "Mozilla",
+  "name": "marketplace-core-modules",
+  "version": "1.0.0",
+  "ignore": [
+    "bower.json",
+    "LICENSE",
+    "README"
+  ],
+  "dependencies": {}
+}
