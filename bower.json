@@ -5,7 +5,7 @@
   "ignore": [
     "bower.json",
     "LICENSE",
-    "README"
+    "README.md"
   ],
   "dependencies": {}
 }
