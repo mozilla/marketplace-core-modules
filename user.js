@@ -54,7 +54,11 @@ define('user',
     }
 
     function get_user_setting(setting, default_) {
-        return user_settings[setting] || default_;
+        if (user_settings.hasOwnProperty(setting)) {
+            return user_settings[setting];
+        } else {
+            return default_;
+        }
     }
 
     function get_permission(setting) {
