@@ -13,7 +13,7 @@ When you updating a module:
 - Run ```make update``` to get these modules into your project and into your
   RequireJS development configuration
 
-### Adding a Module
+## Adding a Module
 
 When adding an core module:
 
@@ -24,3 +24,10 @@ When adding an core module:
 
 The Commonplace step will make it so Marketplace frontend projects won't have
 to manually configure the module into their RequireJS configurations.
+
+## Developing Modules
+
+For convenience, you can clone this repository straight into the
+```src/media/js/lib``` directory of your frontend project. That way, you can
+test your modules and handle revisions in the sample place (without needing
+to copy modules to a different folder to commit).
