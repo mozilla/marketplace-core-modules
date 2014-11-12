@@ -1,10 +1,10 @@
 define('login',
     ['cache', 'capabilities', 'defer', 'jquery', 'log', 'notification',
-     'settings', 'site_config', 'storage', 'underscore', 'urls', 'user',
-     'utils', 'requests', 'z'],
+     'polyfill', 'settings', 'site_config', 'storage', 'underscore', 'urls',
+     'user', 'utils', 'requests', 'z'],
     function(cache, capabilities, defer, $, log, notification,
-             settings, siteConfig, storage, _, urls, user,
-             utils, requests, z) {
+             polyfill, settings, siteConfig, storage, _, urls,
+             user, utils, requests, z) {
 
     var console = log('login');
     var persona_def = defer.Deferred();
@@ -195,10 +195,11 @@ define('login',
 
     function gotVerifiedEmail(assertion) {
         console.log('Got assertion from Persona');
+        var aud;
         if (capabilities.yulelogFxA()) {
-            var aud = packaged_origin;
+            aud = packaged_origin;
         } else {
-            var aud = window.location.protocol + '//' + window.location.host;
+            aud = window.location.origin;
         }
         var data = {
             assertion: assertion,
@@ -294,11 +295,11 @@ define('login',
 
     function registerFxAPostMessageHandler() {
         window.addEventListener('message', function (msg) {
-            if (!msg.data || !msg.data.auth_code ||
-                    msg.origin !== settings.api_url) {
-                return;
+            var valid_origins = [settings.api_url, window.location.origin];
+            if (msg.data && msg.data.auth_code &&
+                    valid_origins.indexOf(msg.origin) !== -1) {
+                handle_fxa_login(msg.data.auth_code);
             }
-            handle_fxa_login(msg.data.auth_code);
         });
     }
 
@@ -352,6 +353,9 @@ define('login',
             'auth_response': auth_code,
             'state': state || settings.fxa_auth_state,
         };
+        if (siteConfig.fxa_client_id()) {
+            loginData.client_id = siteConfig.fxa_client_id();
+        }
         z.page.trigger('before_login');
         requests.post(urls.api.url('fxa-login'), loginData)
                 .done(logIn)
