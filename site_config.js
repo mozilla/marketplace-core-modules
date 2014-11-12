@@ -26,8 +26,7 @@ define('site_config',
 
         requests.get(urls.api.unsigned.url('site-config')).done(function(data) {
             if (data.hasOwnProperty('fxa')) {
-                set_fxa_client_id(window.location.origin, data);
-                settings.fxa_auth_url = data.fxa.fxa_auth_url;
+                settings.fxa_auth_url = update_fxa_url_client_id(data.fxa.fxa_auth_url);
                 settings.fxa_auth_state = data.fxa.fxa_auth_state;
             }
             if (data.waffle.switches && _.isArray(data.waffle.switches)) {
@@ -43,31 +42,42 @@ define('site_config',
 
     var fxa_client_ids = {
         // marketplace-frontend.
-        'http://localhost:8675': 'rxlfac6medc5jn6s',
+        'http://localhost:8675': '124ae9dff020ba79',
         // marketplace-comm-dashboard.
-        'http://localhost:8676': 'r67qywce0i8gbgq0',
+        'http://localhost:8676': '31b549f7dfb4de69',
         // marketplace-stats.
-        'http://localhost:8677': 'vfs1ce0r8803oyxz',
+        'http://localhost:8677': 'cc389d4ccd6cd34d',
         // marketplace-editorial-tools.
-        'http://localhost:8678': 's1nh8891zmfusfds',
+        'http://localhost:8678': '47354b86fb361c7e',
         // marketplace-operator-dashboard.
-        'http://localhost:8679': 'sb08x7vb6jshd9x4',
+        'http://localhost:8679': '049d4b105daa1cb9',
     };
 
-    function set_fxa_client_id(origin, site_data) {
+    function update_fxa_url_client_id(fxa_auth_url, origin) {
         // If developing locally, replaces the client_id in fxa_auth_url so
         // the server knows where to redirect to (bug 1093338). Allows for
-        // local development with FXA.
-        if (fxa_client_ids[origin] && site_data.fxa_auth_url) {
-            site_data.fxa_auth_url = utils.urlparams(site_data.fxa_auth_url, {
-                client_id: fxa_client_ids[origin]
+        // local development with FxA.
+        var client_id = fxa_client_id_for_origin(origin);
+        if (client_id) {
+            return utils.urlparams(fxa_auth_url, {
+                client_id: client_id
             });
+        } else {
+            return fxa_auth_url;
         }
+    }
+
+    function fxa_client_id_for_origin(origin) {
+        // Lookup a client_id based on our hostname -> client_id mapping. This
+        // is used to handle the fact that FxA only allows one redirect URL
+        // per client_id so a different client_id is needed for each hostname.
+        return fxa_client_ids[origin || window.location.origin];
     }
 
     return {
         fetch: fetch,
+        fxa_client_id_for_origin: fxa_client_id_for_origin,
         promise: fetch(),
-        set_fxa_client_id: set_fxa_client_id
+        update_fxa_url_client_id: update_fxa_url_client_id
     };
 });
