@@ -4,19 +4,19 @@ define('storage', ['settings'], function(settings) {
         store = {};
     }
 
-    FakeStorage.prototype.getItem = function(key){
+    FakeStorage.prototype.getItem = function(key) {
         return this.store[key];
     };
 
-    FakeStorage.prototype.setItem = function(key, value){
+    FakeStorage.prototype.setItem = function(key, value) {
         this.store[key] = value;
     };
 
-    FakeStorage.prototype.removeItem = function(key){
+    FakeStorage.prototype.removeItem = function(key) {
         delete this.store[key];
     };
 
-    FakeStorage.prototype.clear = function(){
+    FakeStorage.prototype.clear = function() {
         this.store = {};
     };
 
@@ -27,7 +27,7 @@ define('storage', ['settings'], function(settings) {
         ls = new FakeStorage();
     }
 
-    function mapKey(key){
+    function mapKey(key) {
         return settings.storage_version + '::' + key;
     }
 
@@ -39,19 +39,19 @@ define('storage', ['settings'], function(settings) {
         clear: function() {
             ls.clear();
         },
-        getItem: function(key){
+        getItem: function(key) {
             var value = ls.getItem(mapKey(key));
-            // Handle nulls, maybe other stray values
-            try{
+            // Handle nulls, maybe other stray values.
+            try {
                 return JSON.parse(value);
-            }catch(e){
+            } catch(e) {
                 return value;
             }
         },
-        removeItem: function(key){
+        removeItem: function(key) {
             ls.removeItem(mapKey(key));
         },
-        setItem: function(key, value){
+        setItem: function(key, value) {
             ls.setItem(mapKey(key), JSON.stringify(value));
         }
     };
