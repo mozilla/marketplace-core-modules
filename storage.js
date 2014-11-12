@@ -1,7 +1,7 @@
 define('storage', ['settings'], function(settings) {
 
     function FakeStorage() {
-        store = {};
+        this.store = {};
     }
 
     FakeStorage.prototype.getItem = function(key) {
