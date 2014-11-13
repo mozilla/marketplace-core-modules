@@ -57,23 +57,22 @@ define('site_config',
         // If developing locally, replaces the client_id in fxa_auth_url so
         // the server knows where to redirect to (bug 1093338). Allows for
         // local development with FxA.
-        if (fxa_client_id(origin)) {
+        if (fxa_client_id_for_origin(origin)) {
             return utils.urlparams(fxa_auth_url, {
-                client_id: fxa_client_id(origin)
+                client_id: fxa_client_id_for_origin(origin)
             });
         } else {
             return fxa_auth_url;
         }
     }
 
-    function fxa_client_id(origin) {
-        origin = origin || window.location.origin;
-        return fxa_client_ids[origin];
+    function fxa_client_id_for_origin(origin) {
+        return fxa_client_ids[origin || window.location.origin];
     }
 
     return {
         fetch: fetch,
-        fxa_client_id: fxa_client_id,
+        fxa_client_id_for_origin: fxa_client_id_for_origin,
         promise: fetch(),
         set_fxa_client_id: set_fxa_client_id
     };

@@ -353,8 +353,9 @@ define('login',
             'auth_response': auth_code,
             'state': state || settings.fxa_auth_state,
         };
-        if (siteConfig.fxa_client_id()) {
-            loginData.client_id = siteConfig.fxa_client_id();
+        var clientIdOverride = siteConfig.fxa_client_id_for_origin();
+        if (clientIdOverride) {
+            loginData.client_id = clientIdOverride;
         }
         z.page.trigger('before_login');
         requests.post(urls.api.url('fxa-login'), loginData)

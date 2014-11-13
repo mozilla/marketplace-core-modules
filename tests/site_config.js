@@ -96,9 +96,8 @@ test('sets fxa auth', function(done, fail) {
             settings: settings,
         },
         function(siteConfig) {
-            var promise = siteConfig.promise;
-            promise.then(function() {
-                eq_(settings.fxa_auth_url, 'http://ngokevin.com?client_id=abc123');
+            siteConfig.promise.then(function() {
+                a.ok_(settings.fxa_auth_url.startsWith('http://ngokevin.com?client_id='));
                 eq_(settings.fxa_auth_state, 'somemoreseolongtoken');
                 done();
             });
@@ -190,7 +189,7 @@ test('sets fxa client id localhost', function(done, fail) {
     );
 });
 
-test('sets does not set client id', function(done, fail) {
+test('does not change client id', function(done, fail) {
     mock('site_config', {},
         function(siteConfig) {
             var url = 'http://ngokevin.com?client_id=abc123&auth_state=def456';
