@@ -97,6 +97,8 @@ test('sets fxa auth', function(done, fail) {
         },
         function(siteConfig) {
             siteConfig.promise.then(function() {
+                // We can't be sure of the client_id since it will change based
+                // on the URL you use to run the tests.
                 a.ok_(settings.fxa_auth_url.startsWith('http://ngokevin.com?client_id='));
                 eq_(settings.fxa_auth_state, 'somemoreseolongtoken');
                 done();
@@ -164,7 +166,7 @@ test('no request is made if data is present in body', function(done, fail) {
             }
         },
         function(siteConfig) {
-            siteConfig.set_fxa_client_id = function() {};
+            siteConfig.update_fxa_url_client_id = function() {};
             siteConfig.promise.then(function() {
                 eq_(settings.fxa_auth_url, 'dummy_fxa_auth_url');
                 eq_(settings.fxa_auth_state, 'dummy_fxa_auth_state');
@@ -180,7 +182,7 @@ test('sets fxa client id localhost', function(done, fail) {
     mock('site_config', {},
         function(siteConfig) {
             var url = 'http://ngokevin.com?client_id=abc123&auth_state=def456';
-            var newUrl = siteConfig.set_fxa_client_id(url, 'http://localhost:8679');
+            var newUrl = siteConfig.update_fxa_url_client_id(url, 'http://localhost:8679');
             eq_(newUrl,
                 'http://ngokevin.com?auth_state=def456&client_id=049d4b105daa1cb9');
             done();
@@ -193,7 +195,7 @@ test('does not change client id', function(done, fail) {
     mock('site_config', {},
         function(siteConfig) {
             var url = 'http://ngokevin.com?client_id=abc123&auth_state=def456';
-            var newUrl = siteConfig.set_fxa_client_id(url, 'http://somehost:8679');
+            var newUrl = siteConfig.update_fxa_url_client_id(url, 'http://somehost:8679');
             eq_(newUrl, url);
             done();
         },

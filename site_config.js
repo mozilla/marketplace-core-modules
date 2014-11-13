@@ -26,7 +26,7 @@ define('site_config',
 
         requests.get(urls.api.unsigned.url('site-config')).done(function(data) {
             if (data.hasOwnProperty('fxa')) {
-                settings.fxa_auth_url = set_fxa_client_id(data.fxa.fxa_auth_url);
+                settings.fxa_auth_url = update_fxa_url_client_id(data.fxa.fxa_auth_url);
                 settings.fxa_auth_state = data.fxa.fxa_auth_state;
             }
             if (data.waffle.switches && _.isArray(data.waffle.switches)) {
@@ -53,7 +53,7 @@ define('site_config',
         'http://localhost:8679': '049d4b105daa1cb9',
     };
 
-    function set_fxa_client_id(fxa_auth_url, origin) {
+    function update_fxa_url_client_id(fxa_auth_url, origin) {
         // If developing locally, replaces the client_id in fxa_auth_url so
         // the server knows where to redirect to (bug 1093338). Allows for
         // local development with FxA.
@@ -74,6 +74,6 @@ define('site_config',
         fetch: fetch,
         fxa_client_id_for_origin: fxa_client_id_for_origin,
         promise: fetch(),
-        set_fxa_client_id: set_fxa_client_id
+        update_fxa_url_client_id: update_fxa_url_client_id
     };
 });
