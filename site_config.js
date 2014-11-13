@@ -57,9 +57,10 @@ define('site_config',
         // If developing locally, replaces the client_id in fxa_auth_url so
         // the server knows where to redirect to (bug 1093338). Allows for
         // local development with FxA.
-        if (fxa_client_id_for_origin(origin)) {
+        var client_id = fxa_client_id_for_origin(origin);
+        if (client_id) {
             return utils.urlparams(fxa_auth_url, {
-                client_id: fxa_client_id_for_origin(origin)
+                client_id: client_id
             });
         } else {
             return fxa_auth_url;
