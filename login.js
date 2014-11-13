@@ -353,6 +353,8 @@ define('login',
             'auth_response': auth_code,
             'state': state || settings.fxa_auth_state,
         };
+        // Check for a host secific client_id override. See site_config.js for
+        // more info.
         var clientIdOverride = siteConfig.fxa_client_id_for_origin();
         if (clientIdOverride) {
             loginData.client_id = clientIdOverride;
