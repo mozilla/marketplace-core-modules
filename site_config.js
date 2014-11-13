@@ -67,6 +67,9 @@ define('site_config',
     }
 
     function fxa_client_id_for_origin(origin) {
+        // Lookup a client_id based on our hostname -> client_id mapping. This
+        // is used to handle the fact that FxA only allows one redirect URL
+        // per client_id so a different client_id is needed for each hostname.
         return fxa_client_ids[origin || window.location.origin];
     }
 
