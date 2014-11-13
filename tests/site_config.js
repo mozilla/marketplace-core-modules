@@ -98,7 +98,7 @@ test('sets fxa auth', function(done, fail) {
         function(siteConfig) {
             var promise = siteConfig.promise;
             promise.then(function() {
-                eq_(settings.fxa_auth_url 'http://ngokevin.com?client_id=abc123');
+                eq_(settings.fxa_auth_url, 'http://ngokevin.com?client_id=abc123');
                 eq_(settings.fxa_auth_state, 'somemoreseolongtoken');
                 done();
             });
