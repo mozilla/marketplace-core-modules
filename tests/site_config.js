@@ -99,7 +99,7 @@ test('sets fxa auth', function(done, fail) {
             siteConfig.promise.then(function() {
                 // We can't be sure of the client_id since it will change based
                 // on the URL you use to run the tests.
-                a.ok_(settings.fxa_auth_url.startsWith('http://ngokevin.com?client_id='));
+                eq_(settings.fxa_auth_url.indexOf('http://ngokevin.com?client_id='), 0);
                 eq_(settings.fxa_auth_state, 'somemoreseolongtoken');
                 done();
             });
