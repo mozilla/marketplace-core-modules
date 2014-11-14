@@ -29,5 +29,5 @@ to manually configure the module into their RequireJS configurations.
 
 For convenience, you can clone this repository straight into the
 ```src/media/js/lib``` directory of your frontend project. That way, you can
-test your modules and handle revisions in the sample place (without needing
+test your modules and handle revisions in the same place (without needing
 to copy modules to a different folder to commit).
