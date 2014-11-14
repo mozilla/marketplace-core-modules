@@ -3,6 +3,17 @@ Core JS modules for Firefox Marketplace frontend projects.
 - [Marketplace frontend documentation](https://marketplace-frontend.readthedocs.org)
 - [Marketplace documentation](https://marketplace.readthedocs.org)
 
+
+## Developing Modules
+
+For convenience, you can clone this repository straight into the
+```src/media/js/lib``` directory of your frontend project. That way, you can
+test your modules and handle revisions in the same place (without needing
+to copy modules to a different folder to commit).
+
+Be careful as running ```make install``` may overwrite changes you make
+in that directory!
+
 ## Updating a Module
 
 When you updating a module:
@@ -24,10 +35,3 @@ When adding an core module:
 
 The Commonplace step will make it so Marketplace frontend projects won't have
 to manually configure the module into their RequireJS configurations.
-
-## Developing Modules
-
-For convenience, you can clone this repository straight into the
-```src/media/js/lib``` directory of your frontend project. That way, you can
-test your modules and handle revisions in the same place (without needing
-to copy modules to a different folder to commit).
