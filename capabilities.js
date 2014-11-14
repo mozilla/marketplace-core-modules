@@ -26,31 +26,21 @@ define('capabilities', ['settings'], function(settings) {
         'phantom': navigator.userAgent.match(/Phantom/)  // Don't use this if you can help it.
     };
 
-    // Note: persona will be true for nativeFxA, since it uses the same JavaScript API.
-    // FallbackFxA uses a completely different path, though.
-    static_caps.persona = function() {
-        return ((!!navigator.id || !!navigator.mozId) &&
-                !static_caps.phantom &&
-                !static_caps.fallbackFxA());
-    };
+    // Left in for the moment because native FxA shares code with old persona flow.
+    static_caps.persona = function() { return (!static_caps.fallbackFxA()); };
+
     static_caps.nativeFxA = function() {
-        return (static_caps.firefoxOS &&
-                settings.switches.indexOf('firefox-accounts') !== -1 &&
-                window.location.protocol === 'app:' &&
+        return (static_caps.firefoxOS && window.location.protocol === 'app:' &&
                 navigator.userAgent.match(/rv:(\d{2})/)[1] >= 34);
 
     };
     static_caps.yulelogFxA = function() {
-        return (static_caps.firefoxOS &&
-                settings.switches.indexOf('firefox-accounts') !== -1 &&
-                window.top !== window.self &&
-                navigator.userAgent.match(/rv:(\d{2})/)[1] >= 34 &&
-                // Disable until ready to begin native-fxa testing
-                false);
+        return (static_caps.firefoxOS && window.top !== window.self &&
+                settings.switches.indexOf('native-firefox-accounts') !== -1 &&
+                navigator.userAgent.match(/rv:(\d{2})/)[1] >= 34);
     };
     static_caps.fallbackFxA = function() {
-        return (!static_caps.nativeFxA() &&
-                settings.switches.indexOf('firefox-accounts') !== -1);
+        return (!(static_caps.nativeFxA() || static_caps.yulelogFxA()));
     };
 
 
