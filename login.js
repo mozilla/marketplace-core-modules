@@ -307,7 +307,7 @@ define('login',
         if (capabilities.yulelogFxA()) {
             console.log("setting up yulelog-fxa");
             window.addEventListener('message', function (msg) {
-                if (!msg.data || !msg.data.type || !msg.origin !== packaged_origin) {
+                if (!msg.data || !msg.data.type || msg.origin === packaged_origin) {
                     return;
                 }
                 console.log("fxa message " + JSON.stringify(msg.data));
