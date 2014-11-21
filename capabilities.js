@@ -26,9 +26,6 @@ define('capabilities', ['settings'], function(settings) {
         'phantom': navigator.userAgent.match(/Phantom/)  // Don't use this if you can help it.
     };
 
-    // Left in for the moment because native FxA shares code with old persona flow.
-    static_caps.persona = function() { return (!static_caps.fallbackFxA()); };
-
     static_caps.nativeFxA = function() {
         return (static_caps.firefoxOS && window.location.protocol === 'app:' &&
                 navigator.userAgent.match(/rv:(\d{2})/)[1] >= 34);
@@ -42,11 +39,6 @@ define('capabilities', ['settings'], function(settings) {
     static_caps.fallbackFxA = function() {
         return (!(static_caps.nativeFxA() || static_caps.yulelogFxA()));
     };
-
-
-    // True if the login should inherit mobile behaviors such as allowUnverified.
-    // The _shimmed check is for B2G where identity is native (not shimmed).
-    static_caps.mobileLogin = function() { return static_caps.persona() && (!navigator.id._shimmed || static_caps.firefoxAndroid); };
 
     static_caps.device_type = function() {
         if (static_caps.firefoxOS) {

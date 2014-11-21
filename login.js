@@ -7,9 +7,6 @@ define('login',
              user, utils, requests, z) {
 
     var console = log('login');
-    var persona_def = defer.Deferred();
-    var persona_loaded = persona_def.promise();
-
     var fxa_popup;
     var pending_logins = [];
     var packaged_origin = "app://packaged." + window.location.host;
@@ -91,16 +88,7 @@ define('login',
     }).on('click', '.logout', utils._pd(function(e) {
         requests.del(urls.api.url('logout'));
 
-        if (capabilities.persona()) {
-            console.log('Triggering Persona logout');
-            navigator.id.logout();
-            if (storage.getItem('user')) {
-                console.log("logout for-serious");
-                // navigator.id callback didn't log us out, let's do it now.
-                // see https://github.com/mozilla/browserid/issues/3229
-                logOut();
-            }
-        } else {
+        if (capabilities.fallbackFxA()) {
             logOut();
         }
     }));
@@ -117,30 +105,9 @@ define('login',
         var i = getCenteredCoordinates(w, h);
         var def = defer.Deferred();
         pending_logins.push(def);
-
-        var opt = {
-            termsOfService: settings.persona_tos,
-            privacyPolicy: settings.persona_privacy,
-            register: false,
-            siteLogo: settings.persona_site_logo,
-            oncancel: oncancel
-        };
+        var opt = {register: false};
         // Override our settings with the provided ones.
         _.extend(opt, options);
-
-        if (settings.persona_unverified_issuer) {
-            // We always need to force a specific issuer because bridged IdPs don't work with verified/unverified.
-            // See bug 910938.
-            opt.experimental_forceIssuer = settings.persona_unverified_issuer;
-        }
-        if (capabilities.mobileLogin()) {
-            // On mobile we don't require new accounts to verify their email.
-            // On desktop, we do.
-            opt.experimental_allowUnverified = true;
-            console.log('Allowing unverified emails');
-        } else {
-            console.log('Not allowing unverified emails');
-        }
         if (capabilities.yulelogFxA()) {
             window.top.postMessage({type: 'fxa-request'}, packaged_origin);
         } else if (capabilities.fallbackFxA()) {
@@ -179,22 +146,14 @@ define('login',
                 }
             }, 150);
         } else {
-            persona_loaded.done(function() {
-                if (capabilities.persona()) {
-                    console.log('Requesting login from Persona');
-                    if (capabilities.nativeFxA()) {
-                        navigator.id.request({oncancel: opt.oncancel});
-                    } else {
-                        navigator.id.request(opt);
-                    }
-                }
-            });
+            console.log('Requesting login from Native FxA');
+            navigator.mozId.request({oncancel: oncancel});
         }
         return def.promise();
     }
 
     function gotVerifiedEmail(assertion) {
-        console.log('Got assertion from Persona');
+        console.log('Got assertion from FxA');
         var aud;
         if (capabilities.yulelogFxA()) {
             aud = packaged_origin;
@@ -204,7 +163,6 @@ define('login',
         var data = {
             assertion: assertion,
             audience: aud,
-            is_mobile: capabilities.mobileLogin()
         };
 
         z.page.trigger('before_login');
@@ -215,82 +173,34 @@ define('login',
             console.warn('Assertion verification failed!', textStatus, error);
 
             var err = jqXHR.responseText;
-            if (!err) {
-                err = gettext("Persona login failed. Maybe you don't have an account under that email address?") + ' ' + textStatus + ' ' + error;
-            }
             // Catch-all for XHR errors otherwise we'll trigger a notification
             // with its message as one of the error templates.
             if (jqXHR.status != 200) {
-                err = gettext('Persona login failed. A server error was encountered.');
+                err = gettext('FxA login failed. A server error was encountered.');
             }
             logInFailed(err);
         });
     }
 
-    function loadPersona() {
-        var persona_loading_start = +(new Date());
-        var persona_loading_time = 0;
-        var persona_step = 25;  // 25 milliseconds
-
-        // If we don't have navigator.id/mozId and the shim script is absent,
-        // we need to inject it.
-        if (!capabilities.persona() &&
-            !$('script[src="' + settings.persona_shim_url + '"]').length) {
-            var s = document.createElement('script');
-            s.async = true;
-            s.src = settings.persona_shim_url;
-            document.body.appendChild(s);
+    function startNativeFxA() {
+        var email = user.get_setting('email') || '';
+        if (email) {
+            console.log('Detected user', email);
+        } else {
+            console.log('No previous user detected');
         }
-
-        // Check for navigator.id/mozId every persona_step milliseconds to
-        // resolve (or reject if we waited too long) the promise.
-        var persona_interval = setInterval(function() {
-            persona_loading_time = +(new Date()) - persona_loading_start;
-            if (capabilities.persona()) {
-                console.log('Persona loaded (' + persona_loading_time / 1000 + 's)');
-                persona_def.resolve();
-                clearInterval(persona_interval);
-            } else if (persona_loading_time >= settings.persona_timeout) {
-                console.error('Persona timeout (' + persona_loading_time / 1000 + 's)');
-                persona_def.reject();
-                clearInterval(persona_interval);
-            }
-        }, persona_step);
-
-        persona_loaded.done(function() {
+        console.log('Calling navigator.mozId.watch');
+        navigator.mozId.watch({
+            wantIssuer: 'firefox-accounts',
+            loggedInUser: email,
             // This lets us change the cursor for the "Sign in" link.
-            z.body.addClass('persona-loaded');
-            var opts;
-            var email = user.get_setting('email') || '';
-            if (email) {
-                console.log('Detected user', email);
-            } else {
-                console.log('No previous user detected');
+            onready: function() {z.body.addClass('persona-loaded');},
+            onlogin: gotVerifiedEmail,
+            onlogout: function() {
+                z.body.removeClass('logged-in');
+                z.page.trigger('reload_chrome').trigger('logout');
             }
-
-            if (capabilities.persona()) {
-                console.log('Calling navigator.id.watch');
-                opts = {
-                    loggedInUser: email,
-                    onready: function() {},
-                    onlogin: gotVerifiedEmail,
-                    onlogout: function() {
-                        z.body.removeClass('logged-in');
-                        z.page.trigger('reload_chrome').trigger('logout');
-                    }
-                };
-                if (capabilities.nativeFxA()) {
-                    opts.wantIssuer = 'firefox-accounts';
-                }
-                navigator.id.watch(opts);
-            }
-        }).fail(function() {
-            notification.notification({
-                message: gettext('Persona cannot be reached. Try again later.')
-            });
         });
-
-        return persona_loaded;
     }
 
     function registerFxAPostMessageHandler() {
@@ -323,15 +233,9 @@ define('login',
                                     email: user.get_setting('email') || ''},
                                    packaged_origin);
         } else if (!capabilities.fallbackFxA()) {
-            // Try to load persona. This is used by persona native/fallback
-            // implementation, as well as fxa native.
-            loadPersona();
+            startNativeFxA();
         } else {
-            // Handle fallback FxA. It doesn't use navigator.id, so we don't
-            // have anything to inject and can immediately add the
-            // "persona-loaded" class instead of waiting on the promise.
             // This lets us change the cursor for the "Sign in" link.
-            persona_def.reject();
             z.body.addClass('persona-loaded');
             // Register the "message" handler here to avoid it being registered
             // multiple times.
