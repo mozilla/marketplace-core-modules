@@ -191,6 +191,17 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         return a;
     }
 
+    function urlorigin(url) {
+        var a = urlparse(url);
+        var origin = a.protocol + '//' + a.hostname;
+        if ((a.protocol == 'http' && a.port == 80) ||
+            (a.protocol == 'https' && a.port == 443)) {
+            return origin;
+        } else {
+            return origin + ':' + a.port;
+        }
+    }
+
     return {
         '_pd': _pd,
         'baseurl': baseurl,
@@ -205,6 +216,7 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         'querystring': querystring,
         'slugify': slugify,
         'urlencode': urlencode,
+        'urlorigin': urlorigin,
         'urlparams': urlparams,
         'urlparse': urlparse,
         'urlunparam': urlunparam,

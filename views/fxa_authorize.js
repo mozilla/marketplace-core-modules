@@ -1,5 +1,5 @@
-define('views/fxa_authorize', ['capabilities', 'log', 'login', 'utils', 'z'],
-       function(capabilities, log, login, utils, z) {
+define('views/fxa_authorize', ['capabilities', 'log', 'login', 'settings', 'utils', 'z'],
+       function(capabilities, log, login, settings, utils, z) {
     'use strict';
     var console = log('view', 'fxa-login');
     return function(builder) {
@@ -13,11 +13,13 @@ define('views/fxa_authorize', ['capabilities', 'log', 'login', 'utils', 'z'],
                 isPopup = true;
             }
         } catch (e) {
-            isPopup = false;
+            isPopup = window.location.hostname == 'localhost';
         }
         if (isPopup) {
-            window.opener.postMessage({auth_code: auth_code},
-                                      window.location.origin);
+            var messageOrigin = window.location.hostname == 'localhost' ?
+                                utils.urlorigin(settings.api_url) :
+                                window.location.origin;
+            window.opener.postMessage({auth_code: auth_code}, messageOrigin);
             // This code will execute from a hosted origin, since the FxA login
             // process redirects there. Nevertheless, this might be a window
             // opened by the Marketplace packaged app. So, let's send this info
@@ -38,7 +40,7 @@ define('views/fxa_authorize', ['capabilities', 'log', 'login', 'utils', 'z'],
                 new MozActivity({name: 'marketplace-app', data: {
                     type: 'login',
                     auth_code: auth_code,
-                    state: state}})
+                    state: state}});
                 window.close();
             } else {
                 login.handle_fxa_login(auth_code, state);
