@@ -117,14 +117,15 @@ define('login',
                 save_fxa_auth_url(settings.fxa_auth_url);
             } else {
                 fxa_url = settings.fxa_auth_url;
-                if (opt.register) {
-                    fxa_url += '&action=signup';
-                }
+            }
+            if (opt.register) {
+                fxa_url = utils.urlparams(fxa_url, {action: 'signup'});
             }
             fxa_popup = window.open(
                 fxa_url,
                 'fxa',
-                'width=' + w + ',height=' + h + ',left=' + i[0] + ',top=' + i[1]);
+                'scrollbars=yes,width=' + w + ',height=' + h +
+                ',left=' + i[0] + ',top=' + i[1]);
 
             // The same-origin policy prevents us from listening to events to
             // know when the cross-origin FxA popup was closed. And we can't
