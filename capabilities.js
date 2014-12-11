@@ -53,6 +53,11 @@ define('capabilities', ['settings'], function(settings) {
         }
     };
 
+    static_caps.device_platform = function() {
+        // Remove "-tablet" and "-mobile" from android types.
+        return static_caps.device_type().split('-')[0];
+    };
+
     return static_caps;
 
 });
