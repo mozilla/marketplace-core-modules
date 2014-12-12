@@ -1,7 +1,7 @@
 {
   "author": "Mozilla",
   "name": "marketplace-core-modules",
-  "version": "1.0.13",
+  "version": "1.0.2",
   "ignore": [
     "bower.json",
     "LICENSE",
