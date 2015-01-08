@@ -4,6 +4,19 @@ define('capabilities', ['settings'], function(settings) {
         return !!m && m.matches;
     }
 
+    function detectOS() {
+        var macInfo = /Mac OS X 10[_\.](\d+)/
+            .exec(navigator.userAgent);
+        if (macInfo) {
+            return {
+                name: 'Mac OS X',
+                version: [10, parseInt(macInfo[1], 10)],
+            };
+        } else {
+            return {};
+        }
+    }
+
     var static_caps = {
         'JSON': window.JSON && typeof JSON.parse === 'function',
         'debug': document.location.href.indexOf('dbg') >= 0,
@@ -23,7 +36,8 @@ define('capabilities', ['settings'], function(settings) {
         'firefoxOS': navigator.mozApps && navigator.mozApps.installPackage &&
                      navigator.userAgent.indexOf('Android') === -1 &&
                      (navigator.userAgent.indexOf('Mobile') !== -1 || navigator.userAgent.indexOf('Tablet') !== -1),
-        'phantom': navigator.userAgent.match(/Phantom/)  // Don't use this if you can help it.
+        'phantom': navigator.userAgent.match(/Phantom/),  // Don't use this if you can help it.
+        'os': detectOS(),
     };
 
     static_caps.nativeFxA = function() {
@@ -57,6 +71,11 @@ define('capabilities', ['settings'], function(settings) {
         // Remove "-tablet" and "-mobile" from android types.
         return static_caps.device_type().split('-')[0];
     };
+
+    // OS X requires some extra work to install apps that aren't from the
+    // App Store. See bug 1112275 for more info.
+    static_caps.osXInstallIssues = static_caps.os.name === 'Mac OS X' &&
+                                   static_caps.os.version[1] >= 9;
 
     return static_caps;
 
