@@ -19,24 +19,26 @@ define('views/tests', ['assert', 'requests'], function(assert, requests) {
             is_done();
             setTimeout(function() {
                 var infobox = $('<li><span style="background-color: gray">Running</span> <b>' + name + '</b></li>');
+                infobox.attr('status', 'init');
+                infobox.attr('name', name);
                 $('ol.tests').append(infobox);
                 var completion = function() {
                     passed++;
                     $('#c_passed').text(passed);
-                    infobox.find('span').text('Passed').css('background-color', 'lime');
+                    infobox.attr('status', 'pass').find('span').text('Passed').css('background-color', 'lime');
                     is_done();
                     if (cleanup) cleanup();
                 };
                 var has_failed = function(message) {
                     console.error(name, message);
                     failed++;
-                    infobox.find('span').html('Failed<br>' + message).css('background-color', 'pink');
+                    infobox.attr('status', 'fail').find('span').html('Failed<br>' + message).css('background-color', 'pink');
                     $('#c_failed').text(failed);
                     if (cleanup) cleanup();
                 };
                 try {
                     console.log('Starting ' + name);
-                    infobox.find('span').text('Started').css('background-color', 'goldenrod');
+                    infobox.attr('status', 'stall').find('span').text('Started').css('background-color', 'goldenrod');
                     runner(completion, has_failed);
                 } catch (e) {
                     has_failed(e.message);
