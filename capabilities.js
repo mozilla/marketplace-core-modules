@@ -54,22 +54,37 @@ define('capabilities', ['settings'], function(settings) {
         return (!(static_caps.nativeFxA() || static_caps.yulelogFxA()));
     };
 
-    static_caps.device_type = function() {
+    /* Returns device platform name without the form factor ('dev' API parameter). */
+    static_caps.device_platform = function() {
         if (static_caps.firefoxOS) {
             return 'firefoxos';
         } else if (static_caps.firefoxAndroid) {
-            if (static_caps.widescreen()) {  // TODO(buchets): Retire me
-                return 'android-tablet';
-            }
-            return 'android-mobile';
-        } else {
-            return 'desktop';
+            return 'android';
         }
+        return 'desktop';
     };
 
-    static_caps.device_platform = function() {
-        // Remove "-tablet" and "-mobile" from android types.
-        return static_caps.device_type().split('-')[0];
+    /* Returns device form factor alone, i.e. 'tablet' or 'mobile' ('device' API parameter).
+     * Only supported for Android currently. */
+    static_caps.device_formfactor = function() {
+        if (static_caps.firefoxAndroid) {
+            if (static_caps.widescreen()) {
+                return 'tablet';
+            }
+            return 'mobile';
+        }
+        return '';
+    };
+
+    /* Returns full device type information, e.g. 'android-mobile' or 'firefoxos' as exposed by the API. */
+    static_caps.device_type = function() {
+        var device_platform = static_caps.device_platform();
+        var device_formfactor = static_caps.device_formfactor();
+
+        if (device_platform && device_formfactor) {
+            return device_platform + '-' + device_formfactor;
+        }
+        return device_platform;
     };
 
     // OS X requires some extra work to install apps that aren't from the
