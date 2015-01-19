@@ -75,7 +75,7 @@ test('api url', function(done, fail) {
     mock(
         'urls',
         {
-            capabilities: {firefoxOS: true, widescreen: function() { return false; }, touch: 'foo'},
+            api_args: function(url) { return {};},
             routes_api: {'homepage': '/foo/homepage'},
             settings: {
                 api_url: 'api:',
@@ -84,7 +84,6 @@ test('api url', function(done, fail) {
         }, function(urls) {
             var homepage_url = urls.api.url('homepage');
             eq_(homepage_url.substr(0, 17), 'api:/foo/homepage');
-            contains(homepage_url, 'dev=firefoxos');
             done();
         },
         fail
@@ -95,7 +94,7 @@ test('api url signage', function(done, fail) {
     mock(
         'urls',
         {
-            capabilities: {firefoxOS: true, widescreen: function() { return false; }, touch: 'foo'},
+            api_args: function(url) { return {};},
             routes_api: {'homepage': '/foo/homepage'},
             settings: {
                 api_url: 'api:',
@@ -129,7 +128,7 @@ test('api url blacklist', function(done, fail) {
     mock(
         'urls',
         {
-            capabilities: {firefoxOS: true, widescreen: function() { return false; }, touch: 'foo'},
+            api_args: function(url) { return {};},
             routes_api: {'homepage': '/foo/homepage'},
             settings: {
                 api_cdn_whitelist: {},
@@ -227,6 +226,12 @@ test('api url params api_args', function(done, fail) {
             api_args.device = 'customdevice';
             homepage_url = urls.api.params('homepage', {q: 'poop'});
             contains(homepage_url, 'device=customdevice');
+
+            api_args.dev = 'customdev';
+            api_args.device = 'customdevice';
+            homepage_url = urls.api.params('homepage', {q: 'poop'});
+            contains(homepage_url, 'device=customdevice');
+            contains(homepage_url, 'dev=customdev');
 
             done();
         },
