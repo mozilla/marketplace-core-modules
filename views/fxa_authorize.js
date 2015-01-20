@@ -25,9 +25,10 @@ define('views/fxa_authorize', ['capabilities', 'log', 'login', 'utils', 'z'],
             var packaged_origin = 'app://packaged.' + window.location.host;
             console.log('Sending OAuth code to parent window ' +
                         packaged_origin);
+            // Don't remove the splash screen for this view.
+            z.context.hide_splash = false;
+            // The opener will take responsibility of closing the window.
             window.opener.postMessage({auth_code: auth_code}, packaged_origin);
-
-            window.close();
         } else {
             // No popup, login was likely initiated via email.
             var state = utils.getVars().state;
@@ -38,7 +39,7 @@ define('views/fxa_authorize', ['capabilities', 'log', 'login', 'utils', 'z'],
                 new MozActivity({name: 'marketplace-app', data: {
                     type: 'login',
                     auth_code: auth_code,
-                    state: state}})
+                    state: state}});
                 window.close();
             } else {
                 login.handle_fxa_login(auth_code, state);
