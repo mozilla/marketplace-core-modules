@@ -3,6 +3,7 @@ define('views/tests', ['assert', 'requests'], function(assert, requests) {
         var started = 0;
         var passed = 0;
         var failed = 0;
+        var skipped = 0;
 
         function is_done() {
             var ndone = passed + failed;
@@ -45,6 +46,18 @@ define('views/tests', ['assert', 'requests'], function(assert, requests) {
                 }
             }, 0);
             $('#c_started').text(started);
+        };
+
+        window.xtest = function(name) {
+            skipped++;
+            $('#c_skipped').text(skipped);
+            console.log('skipping test ' + name);
+            setTimeout(function() {
+                var infobox = $('<li><span style="background-color: gold">Skipped</span> <b>' + name + '</b></li>');
+                infobox.attr('status', 'skip');
+                infobox.attr('name', name);
+                $('ol.tests').append(infobox);
+            }, 0);
         };
 
         builder.start('tests.html');
