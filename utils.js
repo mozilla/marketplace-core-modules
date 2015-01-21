@@ -167,23 +167,6 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         return '';
     }
 
-    var osStrings = {
-        'windows': 'Windows',
-        'mac': 'Mac',
-        'linux': 'Linux',
-        'android': 'Android'
-    };
-    function browser() {
-        var os = {};
-        var platform = '';
-        for (var i in osStrings) {
-            if (navigator.userAgent.indexOf(osStrings[i]) !== -1) {
-                return i;
-            }
-        }
-        return 'other';
-    }
-
     var a = document.createElement('a');
 
     function urlparse(url) {
@@ -195,7 +178,6 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         '_pd': _pd,
         'baseurl': baseurl,
         'bgurl': bgurl,
-        'browser': browser,
         'encodeURIComponent': encodeURIComponent,
         'decodeURIComponent': decodeURIComponent,
         'escape_': _.escape,
