@@ -8,6 +8,7 @@ define('login',
 
     var console = log('login');
     var fxa_popup;
+    var retainPopup;
     var pending_logins = [];
     var packaged_origin = "app://packaged." + window.location.host;
     function oncancel() {
@@ -93,16 +94,7 @@ define('login',
         }
     }));
 
-    function getCenteredCoordinates(width, height) {
-        var x = window.screenX + Math.max(0, Math.floor((window.innerWidth - width) / 2));
-        var y = window.screenY + Math.max(0, Math.floor((window.innerHeight - height) / 2));
-        return [x, y];
-    }
-
     function startLogin(options) {
-        var w = 320;
-        var h = 600;
-        var i = getCenteredCoordinates(w, h);
         var def = defer.Deferred();
         pending_logins.push(def);
         var opt = {register: false};
@@ -121,11 +113,17 @@ define('login',
             if (opt.register) {
                 fxa_url = utils.urlparams(fxa_url, {action: 'signup'});
             }
-            fxa_popup = window.open(
-                fxa_url,
-                'fxa',
-                'scrollbars=yes,width=' + w + ',height=' + h +
-                ',left=' + i[0] + ',top=' + i[1]);
+
+            if (opt.popupWindow) {
+                console.log('Changing location of supplied window to', fxa_url);
+                fxa_popup = opt.popupWindow;
+                fxa_popup.location = fxa_url;
+                retainPopup = true;
+            } else {
+                console.log('Opening new login window');
+                fxa_popup = utils.openWindow({url: fxa_url});
+                retainPopup = false;
+            }
 
             // The same-origin policy prevents us from listening to events to
             // know when the cross-origin FxA popup was closed. And we can't
@@ -133,7 +131,7 @@ define('login',
             // Firefox does not fire `focus` when a popup is closed (presumably
             // because the page never truly lost focus).
             var popup_interval = setInterval(function() {
-                if (!fxa_popup || fxa_popup.closed) {
+                 if (!fxa_popup || fxa_popup.closed) {
                     // The oncancel was cancelling prematurely when window is closed,
                     // prevents review dialog from popping up on login success.
                     // oncancel();
@@ -270,6 +268,13 @@ define('login',
                 .fail(function(jqXHR, textStatus, error) {
             console.warn('FxA login failed', jqXHR, textStatus, error);
             logInFailed();
+        }).always(function() {
+            if (fxa_popup && !retainPopup) {
+                console.log('Closing login popup');
+                fxa_popup.close();
+            } else if (fxa_popup) {
+                console.log('Keeping window around for re-use');
+            }
         });
     }
 

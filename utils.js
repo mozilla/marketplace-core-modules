@@ -191,6 +191,24 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         return a;
     }
 
+    function getCenteredCoordinates(width, height) {
+        var x = window.screenX + Math.max(0, Math.floor((window.innerWidth - width) / 2));
+        var y = window.screenY + Math.max(0, Math.floor((window.innerHeight - height) / 2));
+        return [x, y];
+    }
+
+    function openWindow(opts) {
+        opts = opts || {};
+        var url = opts.url || '';
+        var title = opts.title || 'fxa';
+        var w = opts.width || 320;
+        var h = opts.height || 600;
+        var centerCoords = getCenteredCoordinates(w, h);
+        return window.open(url, title,
+            'scrollbars=yes,width=' + w + ',height=' + h +
+            ',left=' + centerCoords[0] + ',top=' + centerCoords[1]);
+    }
+
     return {
         '_pd': _pd,
         'baseurl': baseurl,
@@ -202,6 +220,7 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         'fieldFocused': fieldFocused,
         'getVars': getVars,
         'initCharCount': initCharCount,
+        'openWindow': openWindow,
         'querystring': querystring,
         'slugify': slugify,
         'urlencode': urlencode,
