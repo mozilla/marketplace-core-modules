@@ -4,17 +4,39 @@ define('capabilities', ['settings'], function(settings) {
         return !!m && m.matches;
     }
 
-    function detectOS() {
-        var macInfo = /Mac OS X 10[_\.](\d+)/
-            .exec(navigator.userAgent);
-        if (macInfo) {
-            return {
-                name: 'Mac OS X',
-                version: [10, parseInt(macInfo[1], 10)],
-            };
-        } else {
-            return {};
+    var osInfo = {
+        windows: {
+            name: 'Windows', regex: /Windows/, slug: 'windows',
+        },
+        mac: {
+            name: 'Mac OS X', regex: /Mac OS X 10[_\.](\d+)/, slug: 'mac',
+        },
+        linux: {
+            name: 'Linux', regex: /Linux/, slug: 'linux',
+        },
+        android: {
+            name: 'Android', regex: /Android/, slug: 'android',
+        },
+    };
+
+    function detectOS(navigator) {
+        navigator = navigator || window.navigator;
+        var matchData;
+        var os;
+        var osNames = Object.keys(osInfo);
+        for (var i = 0; i < osNames.length; i++) {
+            os = osInfo[osNames[i]];
+            matchData = os.regex.exec(navigator.userAgent);
+            if (matchData) {
+                return {
+                    name: os.name,
+                    slug: os.slug,
+                    // Return `undefined` not `NaN` if we don't detect version.
+                    version: matchData[1] && parseInt(matchData[1], 10),
+                };
+            }
         }
+        return {};
     }
 
     var static_caps = {
@@ -37,6 +59,7 @@ define('capabilities', ['settings'], function(settings) {
                      navigator.userAgent.indexOf('Android') === -1 &&
                      (navigator.userAgent.indexOf('Mobile') !== -1 || navigator.userAgent.indexOf('Tablet') !== -1),
         'phantom': navigator.userAgent.match(/Phantom/),  // Don't use this if you can help it.
+        'detectOS': detectOS,
         'os': detectOS(),
     };
 
@@ -89,8 +112,8 @@ define('capabilities', ['settings'], function(settings) {
 
     // OS X requires some extra work to install apps that aren't from the
     // App Store. See bug 1112275 for more info.
-    static_caps.osXInstallIssues = static_caps.os.name === 'Mac OS X' &&
-                                   static_caps.os.version[1] >= 9;
+    static_caps.osXInstallIssues = static_caps.os.slug === 'mac' &&
+                                   static_caps.os.version >= 9;
 
     return static_caps;
 
