@@ -103,13 +103,7 @@ define('login',
         if (capabilities.yulelogFxA()) {
             window.top.postMessage({type: 'fxa-request'}, packaged_origin);
         } else if (capabilities.fallbackFxA()) {
-            var fxa_url;
-            if (user.migration_enabled()) {
-                fxa_url = '/fxa-migration';
-                save_fxa_auth_url(settings.fxa_auth_url);
-            } else {
-                fxa_url = settings.fxa_auth_url;
-            }
+            var fxa_url = settings.fxa_auth_url;
             if (opt.register) {
                 fxa_url = utils.urlparams(fxa_url, {action: 'signup'});
             }

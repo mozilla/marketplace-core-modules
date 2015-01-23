@@ -170,33 +170,13 @@ define('user',
         }
     }
 
-    function canMigrate() {
-        return (migration_enabled() && !doneMigration() && hasLoggedIn());
-    }
-
-    function migration_enabled() {
-        return settings.switches.indexOf('fx-accounts-migration') !== -1;
-    }
-
     function hasLoggedIn() {
         // We set `permissions` on login and reset it to `{}` on logout so we
         // can use that to tell if this device has ever logged in.
         return !!storage.getItem('permissions');
     }
 
-    function doneMigration() {
-        if (capabilities.nativeFxA()) {
-            // Native FxA devices setup an account on first run.
-            return true;
-        }
-        if (get_user_setting('source') === 'firefox-accounts') {
-            storage.setItem('fxa-migrated', true);
-        }
-        return storage.getItem('fxa-migrated');
-    }
-
     return {
-        canMigrate: canMigrate,
         clear_settings: clear_user_settings,
         clear_token: clear_token,
         get_apps: get_apps,
@@ -208,7 +188,6 @@ define('user',
         has_installed: has_installed,
         has_purchased: has_purchased,
         logged_in: function() {return !!token;},
-        migration_enabled: migration_enabled,
         set_token: set_token,
         update_apps: update_apps,
         update_install: update_install,
