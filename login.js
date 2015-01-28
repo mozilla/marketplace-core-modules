@@ -117,27 +117,23 @@ define('login',
                 console.log('Opening new login window');
                 fxa_popup = utils.openWindow({url: fxa_url});
                 retainPopup = false;
+
+                // The same-origin policy prevents us from listening to events to
+                // know when the cross-origin FxA popup was closed. And we can't
+                // listen to `focus` on the main window because, unlike Chrome,
+                // Firefox does not fire `focus` when a popup is closed (presumably
+                // because the page never truly lost focus).
+                var popup_interval = setInterval(function() {
+                     if (!fxa_popup || fxa_popup.closed) {
+                        // The oncancel was cancelling prematurely when window is closed,
+                        // prevents review dialog from popping up on login success.
+                        // oncancel();
+                        $('.loading-submit').removeClass('loading-submit').trigger('blur');
+                        clearInterval(popup_interval);
+                    }
+                }, 150);
             }
 
-            // The same-origin policy prevents us from listening to events to
-            // know when the cross-origin FxA popup was closed. And we can't
-            // listen to `focus` on the main window because, unlike Chrome,
-            // Firefox does not fire `focus` when a popup is closed (presumably
-            // because the page never truly lost focus).
-            var popup_interval = setInterval(function() {
-                 if (!fxa_popup || fxa_popup.closed) {
-                    // The oncancel was cancelling prematurely when window is closed,
-                    // prevents review dialog from popping up on login success.
-                    // oncancel();
-                    $('.loading-submit').removeClass('loading-submit').trigger('blur');
-                    clearInterval(popup_interval);
-                } else {
-                    // If login dialog ends up behind another window, we want
-                    // to bring it to the front, otherwise it looks like login
-                    // is stuck / broken.
-                    fxa_popup.focus();
-                }
-            }, 150);
         } else {
             console.log('Requesting login from Native FxA');
             navigator.mozId.request({oncancel: oncancel});
