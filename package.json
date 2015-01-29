@@ -1,0 +1,27 @@
+{
+  "name": "marketplace-core-modules",
+  "version": "1.0.0",
+  "description": "Marketplace core JS modules.",
+  "main": "",
+  "directories": {},
+  "dependencies": {},
+  "devDependencies": {
+    "jasmine-core": "^2.1.3",
+    "karma": "^0.12.31",
+    "karma-firefox-launcher": "^0.1.4",
+    "karma-jasmine": "^0.3.5",
+    "karma-mocha": "^0.1.10",
+    "karma-requirejs": "^0.2.2",
+    "mocha": "^2.1.0",
+    "requirejs": "^2.1.15",
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/marketplace-core-modules"
+  },
+  "author": "Mozilla",
+  "license": "MPL"
+}
