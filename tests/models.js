@@ -1,340 +1,275 @@
-(function() {
-var a = require('assert');
-var _ = require('underscore');
-var assert = a.assert;
-var eq_ = a.eq_;
-var eeq_ = a.eeq_;
-var mock = a.mock;
+define('tests/models', ['underscore', 'cache', 'models', 'requests'], function(_, cache, models, requests) {
+    describe('models', function() {
+        this.afterEach(function() {
+            withSettings({model_prototypes: {foo: 'id'}}, function() {
+                cache.flush();
+                models('foo').flush();
+            });
+        });
 
-var models = require('models');
+        it('errors on invalid type', function(done, fail) {
+            try {
+                var d1 = models('does not exist trololo');
+                fail();
+            } catch(e) {
+                done();
+            }
+        });
 
-test('model invalid type', function(done, fail) {
-    try {
-        var d1 = models('does not exist trololo');
-        fail();
-    } catch(e) {
-        done();
-    }
-});
-
-test('model cast/lookup/purge', function(done, fail) {
-    mock(
-        'models',
-        {
-            settings: {
+        it('can cast/lookup/purge', function() {
+            var newSettings = {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id', 'dummy2': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-            var d2 = models('dummy2');
+            };
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
+                var d2 = models('dummy2');
 
-            d1.cast({
-                id: 1,
-                val: 'foo'
+                d1.cast({
+                    id: 1,
+                    val: 'foo'
+                });
+                d2.cast({
+                    id: 1,
+                    val: 'bar'
+                });
+                d2.cast({
+                    id: 2,
+                    val: 'abc'
+                });
+
+                assert.equal(d1.lookup(1).val, 'foo');
+                assert.equal(d2.lookup(1).val, 'bar');
+                assert.equal(d2.lookup(2).val, 'abc');
+
+                d1.purge();
+                d2.purge();
+
+                assert.strictEqual(d1.lookup(1), undefined);
+                assert.strictEqual(d2.lookup(1), undefined);
+                assert.strictEqual(d2.lookup(2), undefined);
             });
-            d2.cast({
-                id: 1,
-                val: 'bar'
-            });
-            d2.cast({
-                id: 2,
-                val: 'abc'
-            });
+        });
 
-            eq_(d1.lookup(1).val, 'foo');
-            eq_(d2.lookup(1).val, 'bar');
-            eq_(d2.lookup(2).val, 'abc');
-
-            d1.purge();
-            d2.purge();
-
-            eeq_(d1.lookup(1), undefined);
-            eeq_(d2.lookup(1), undefined);
-            eeq_(d2.lookup(2), undefined);
-
-            done();
-        }, fail
-    );
-});
-
-test('model cast/lookup/delete', function(done, fail) {
-    mock(
-        'models',
-        {
-            settings: {
+        it('can cast/lookup/delete', function() {
+            var newSettings = {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-            d1.cast({
-                id: 1,
-                val: 'foo'
+            };
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
+                d1.cast({
+                    id: 1,
+                    val: 'foo'
+                });
+
+                assert.equal(d1.lookup(1).val, 'foo');
+                d1.del(2);
+                assert.equal(d1.lookup(1).val, 'foo');
+                d1.del(1);
+                assert.strictEqual(d1.lookup(1), undefined);
             });
+        });
 
-            eq_(d1.lookup(1).val, 'foo');
-            d1.del(2);
-            eq_(d1.lookup(1).val, 'foo');
-            d1.del(1);
-            eeq_(d1.lookup(1), undefined);
-
-            done();
-        }, fail
-    );
-});
-
-test('model cast/lookup/delete val', function(done, fail) {
-    mock(
-        'models',
-        {
-            settings: {
+        it('can cast/lookup/delete val', function() {
+            var newSettings = {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-            d1.cast({
-                id: 1,
-                val: 'foo'
+            };
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
+                d1.cast({
+                    id: 1,
+                    val: 'foo'
+                });
+
+                assert.equal(d1.lookup(1).val, 'foo');
+                d1.del('bar', 'val');
+                assert.equal(d1.lookup(1).val, 'foo');
+                d1.del('foo', 'val');
+                assert.strictEqual(d1.lookup(1), undefined);
             });
+        });
 
-            eq_(d1.lookup(1).val, 'foo');
-            d1.del('bar', 'val');
-            eq_(d1.lookup(1).val, 'foo');
-            d1.del('foo', 'val');
-            eeq_(d1.lookup(1), undefined);
-
-            done();
-        }, fail
-    );
-});
-
-test('model cast/uncast', function(done, fail) {
-    mock(
-        'models',
-        {
-            settings: {
+        it('can cast/uncast', function() {
+            var newSettings = {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-
-            var obj1 = {
-                id: 1,
-                val: 'foo'
             };
-            var obj2 = {
-                id: 1,
-                val: 'bar'
-            };
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
 
-            d1.cast(obj1);
-            eq_(d1.uncast(obj2).val, 'foo');
+                var obj1 = {
+                    id: 1,
+                    val: 'foo'
+                };
+                var obj2 = {
+                    id: 1,
+                    val: 'bar'
+                };
 
-            done();
-        }, fail
-    );
-});
+                d1.cast(obj1);
+                assert.equal(d1.uncast(obj2).val, 'foo');
+            });
+        });
 
-test('model cast/uncast lists', function(done, fail) {
-    mock(
-        'models',
-        {
-            settings: {
+        it('model cast/uncast lists', function() {
+            var newSettings = {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
+            };
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
 
-            var obj1 = {
-                id: 1,
-                val: 'foo'
-            };
-            var obj2 = {
-                id: 2,
-                val: 'bar'
-            };
-            var obj3 = {
-                id: 1,
-                val: 'zip'
-            };
-            var obj4 = {
-                id: 2,
-                val: 'zap'
+                var obj1 = {
+                    id: 1,
+                    val: 'foo'
+                };
+                var obj2 = {
+                    id: 2,
+                    val: 'bar'
+                };
+                var obj3 = {
+                    id: 1,
+                    val: 'zip'
+                };
+                var obj4 = {
+                    id: 2,
+                    val: 'zap'
+                };
+
+                d1.cast([obj1, obj2]);
+
+                var output = d1.uncast([
+                    obj3,
+                    obj4
+                ]);
+                assert.equal(output[0].val, 'foo');
+                assert.equal(output[1].val, 'bar');
+            });
+        });
+
+        it('model get hit', function(done) {
+            var newSettings = {
+                offline_cache_enabled: function () { return false; },
+                model_prototypes: {'dummy': 'id'}
             };
 
-            d1.cast([obj1, obj2]);
-
-            var output = d1.uncast([
-                obj3,
-                obj4
-            ]);
-            eq_(output[0].val, 'foo');
-            eq_(output[1].val, 'bar');
-
-            done();
-        }, fail
-    );
-});
-
-test('model get hit', function(done, fail) {
-    mock(
-        'models',
-        {
-            requests: {get: function(x) {return 'surprise! ' + x;}},
-            settings: {
-                offline_cache_enabled: function () { return false; },
-                model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-
-            d1.cast({
-                id: 1,
-                val: 'foo'
+            sinon.stub(requests, 'get', function(x) {
+                return 'surprise! ' + x;
             });
 
-            var promise = d1.get('zip', 1);
-            promise.done(function(data) {
-                eq_(data.val, 'foo');
-                eeq_(promise.__cached, true);
-                done();
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
+
+                d1.cast({
+                    id: 1,
+                    val: 'foo'
+                });
+
+                var promise = d1.get('zip', 1);
+                promise.done(function(data) {
+                    assert.equal(data.val, 'foo');
+                    assert.strictEqual(promise.__cached, true);
+                    done();
+                });
             });
-        }, fail
-    );
-});
+        });
 
-test('model get miss', function(done, fail) {
-    mock(
-        'models',
-        {
-            requests: {get: function(x) {return 'surprise! ' + x;}},
-            settings: {
+        it('model get miss', function() {
+            var newSettings = {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-
-            eq_(d1.get('zip', 1), 'surprise! zip');
-
-            done();
-        }, fail
-    );
-});
-
-test('model get getter', function(done, fail) {
-    mock(
-        'models',
-        {
-            requests: {get: function(x) {return "not the droids you're looking for";}},
-            settings: {
-                offline_cache_enabled: function () { return false; },
-                model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-
-            eq_(d1.get('zip', 1, function(x) {
-                return 'hooray! ' + x;
-            }), 'hooray! zip');
-
-            done();
-        }, fail
-    );
-});
-
-test('model lookup by', function(done, fail) {
-    mock(
-        'models',
-        {
-            settings: {
-                offline_cache_enabled: function () { return false; },
-                model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-
-            d1.cast({
-                id: 'zip',
-                val: 'foo'
+            };
+            sinon.stub(requests, 'get', function(x) {
+                return 'surprise! ' + x;
             });
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
 
-            d1.cast({
-                id: 'foo',
-                val: 'bar'
+                var obj = d1.get('zip', 1);
+                console.log(JSON.stringify(obj));
+
+                assert.equal(obj, 'surprise! zip');
             });
+        });
 
-            var value = d1.lookup('bar', 'val');
-            eq_(value.id, 'foo');
-            eq_(value.val, 'bar');
-
-            done();
-        }, fail
-    );
-});
-
-test('model lookup miss', function(done, fail) {
-    mock(
-        'models',
-        {
-            settings: {
+        it('model get getter', function() {
+            var newSettings = {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
-
-            // Just a decoy
-            d1.cast({
-                id: 'zip',
-                val: 'foo'
+            };
+            sinon.stub(requests, 'get', function(x) {
+                return "not the droids you're looking for";
             });
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
 
-            eeq_(d1.lookup('not an id'), undefined);
+                assert.equal(d1.get('zip', 1, function(x) {
+                    return 'hooray! ' + x;
+                }), 'hooray! zip');
+            });
+        });
 
-            done();
-        }, fail
-    );
-});
-
-test('model cast list', function(done, fail) {
-    mock(
-        'models',
-        {
-            settings: {
+        it('model lookup by', function() {
+            var newSettings = {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            }
-        },
-        function(models) {
-            var d1 = models('dummy');
+            };
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
 
-            // Just a decoy
-            d1.cast([
-                {id: 'zip', val: 1},
-                {id: 'abc', val: 2},
-                {id: 'def', val: 3}
-            ]);
+                d1.cast({
+                    id: 'zip',
+                    val: 'foo'
+                });
 
-            eq_(d1.lookup('abc').val, 2);
+                d1.cast({
+                    id: 'foo',
+                    val: 'bar'
+                });
 
-            done();
-        }, fail
-    );
+                var value = d1.lookup('bar', 'val');
+                assert.equal(value.id, 'foo');
+                assert.equal(value.val, 'bar');
+            });
+        });
+
+        it('model lookup miss', function() {
+            var newSettings = {
+                offline_cache_enabled: function () { return false; },
+                model_prototypes: {'dummy': 'id'}
+            };
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
+
+                // Just a decoy
+                d1.cast({
+                    id: 'zip',
+                    val: 'foo'
+                });
+
+                assert.strictEqual(d1.lookup('not an id'), undefined);
+            });
+        });
+
+        it('model cast list', function() {
+            var newSettings = {
+                offline_cache_enabled: function () { return false; },
+                model_prototypes: {'dummy': 'id'}
+            };
+            withSettings(newSettings, function() {
+                var d1 = models('dummy');
+
+                // Just a decoy
+                d1.cast([
+                    {id: 'zip', val: 1},
+                    {id: 'abc', val: 2},
+                    {id: 'def', val: 3}
+                ]);
+
+                assert.equal(d1.lookup('abc').val, 2);
+            });
+        });
+    });
 });
-
-})();
