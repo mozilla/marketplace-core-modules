@@ -1,13 +1,7 @@
 define('views',
-    ['builder', 'log', 'routes', 'underscore', 'utils', 'views/not_found', 'z'],
-    function(builder, log, routes, _, utils, not_found, z) {
-
+    ['builder', 'log', 'underscore', 'router', 'utils', 'views/not_found', 'z'],
+    function(builder, log, _, router, utils, not_found, z) {
     var console = log('views');
-
-    routes = routes.map(function(route) {
-        route.regexp = new RegExp(route.pattern);
-        return route;
-    });
 
     function match_route(url) {
         // Returns a 2-tuple: (view, [args]) or null
@@ -34,8 +28,8 @@ define('views',
         }
 
         console.log('Routing', url);
-        for (var i in routes) {
-            var route = routes[i];
+        for (var i in router.routes) {
+            var route = router.routes[i];
             if (route === undefined) continue;
 
             // console.log('Testing route', route.regexp);
@@ -80,7 +74,6 @@ define('views',
         build: build,
         match: match_route,
         reload: reload,
-        routes: routes
     };
 
 });

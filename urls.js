@@ -1,27 +1,30 @@
 define('urls',
-    ['format', 'log', 'routes_api', 'routes_api_args', 'settings', 'user', 'utils'],
-    function(format, log, api_endpoints, api_args, settings, user, utils) {
+    ['format', 'log', 'router', 'settings', 'user', 'utils'],
+    function(format, log, router, settings, user, utils) {
 
     var console = log('urls');
 
-    // The CDN URL is the same as the media URL but without the `/media/` path.
-    if ('media_url' in settings) {
-        var a = document.createElement('a');
-        a.href = settings.media_url;
-        settings.cdn_url = a.protocol + '//' + a.host;
-        console.log('Using settings.media_url: ' + settings.media_url);
-        console.log('Changed settings.cdn_url: ' + settings.cdn_url);
-    } else {
-        settings.cdn_url = settings.api_url;
-        console.log('Changed settings.cdn_url to settings.api_url: ' + settings.api_url);
+    function set_cdn_url() {
+        // The CDN URL is the same as the media URL but without the `/media/` path.
+        if ('media_url' in settings) {
+            var a = document.createElement('a');
+            a.href = settings.media_url;
+            settings.cdn_url = a.protocol + '//' + a.host;
+            console.log('Using settings.media_url: ' + settings.media_url);
+            console.log('Changed settings.cdn_url: ' + settings.cdn_url);
+        } else {
+            settings.cdn_url = settings.api_url;
+            console.log('Changed settings.cdn_url to settings.api_url: ' + settings.api_url);
+        }
     }
+    set_cdn_url();
 
     var group_pattern = /\([^\)]+\)/;
     var optional_pattern = /(\(.*\)|\[.*\]|.)\?/g;
     var reverse = function(view_name, args) {
         args = args || [];
-        for (var i in routes) {
-            var route = routes[i];
+        for (var i in router.routes) {
+            var route = router.routes[i];
             if (route.view_name != view_name)
                 continue;
 
@@ -53,7 +56,7 @@ define('urls',
     function _userArgs(func) {
         return function() {
             var out = func.apply(this, arguments);
-            var args = api_args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
+            var args = router.api.args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
             if (user.logged_in()) {
                 args._user = user.get_token();
             }
@@ -65,7 +68,7 @@ define('urls',
     function _anonymousArgs(func) {
         return function() {
             var out = func.apply(this, arguments);
-            var args = api_args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
+            var args = router.api.args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
             _removeBlacklistedParams(args);
             return utils.urlparams(out, args);
         };
@@ -81,12 +84,12 @@ define('urls',
     }
 
     function api(endpoint, args, params) {
-        if (!(endpoint in api_endpoints)) {
+        if (!(endpoint in router.api.routes)) {
             console.error('Invalid API endpoint: ' + endpoint);
             return '';
         }
 
-        var path = format.format(api_endpoints[endpoint], args || []);
+        var path = format.format(router.api.routes[endpoint], args || []);
         var url = apiHost(path) + path;
 
         if (params) {
@@ -141,6 +144,7 @@ define('urls',
                 params: apiParams
             }
         },
-        media: media
+        media: media,
+        set_cdn_url: set_cdn_url,
     };
 });
