@@ -131,7 +131,7 @@ define('login',
                         $('.loading-submit').removeClass('loading-submit').trigger('blur');
                         clearInterval(popup_interval);
                     }
-                }, 150);
+                }, 500);
             }
 
         } else {
