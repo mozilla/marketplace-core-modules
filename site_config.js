@@ -29,7 +29,7 @@ define('site_config',
                 settings.fxa_auth_url = update_fxa_url_client_id(data.fxa.fxa_auth_url);
                 settings.fxa_auth_state = data.fxa.fxa_auth_state;
             }
-            if (data.waffle.switches && _.isArray(data.waffle.switches)) {
+            if (data.waffle && data.waffle.switches && _.isArray(data.waffle.switches)) {
                 settings.switches = data.waffle.switches;
             }
             def.resolve(data);
