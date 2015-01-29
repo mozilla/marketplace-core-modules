@@ -4,7 +4,7 @@
     rendering, in-place pagination.
 */
 define('builder',
-    ['log', 'jquery', 'templates', 'models', 'requests', 'settings', 'z',
+    ['log', 'jquery', 'nunjucks', 'models', 'requests', 'settings', 'z',
      'nunjucks.compat'],
     function(log, $, nunjucks, models, requests, settings, z) {
     'use strict';

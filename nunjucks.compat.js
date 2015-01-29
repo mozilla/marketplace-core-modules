@@ -1,5 +1,5 @@
 define('nunjucks.compat', ['nunjucks'], function(nunjucks) {
-    console.log('Loading nunjucks compat...')
+    console.log('Loading nunjucks compat...');
 
     var runtime = nunjucks.require('runtime');
     var lib = nunjucks.require('lib');
@@ -116,13 +116,13 @@ define('nunjucks.compat', ['nunjucks'], function(nunjucks) {
             throw new Error('KeyError');
         },
         setdefault: function(key, def) {
-            if (key in this) {
-                return this[key];
+            if (!(key in this)) {
+                if (def === undefined) {
+                    def = null;
+                }
+                this[key] = def;
             }
-            if (def === undefined) {
-                def = null;
-            }
-            return this[key] = def;
+            return this[key];
         },
         update: function(kwargs) {
             for (var k in kwargs) {
