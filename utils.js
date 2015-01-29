@@ -3,6 +3,10 @@ define('utils',
     function($, l10n, _) {
     'use strict';
     var ngettext = l10n.ngettext;
+    // This is a circular dependency.
+    function log(msg) {
+        require('log')('utils').log(msg);
+    }
 
     _.extend(String.prototype, {
         strip: function(str) {
@@ -113,7 +117,8 @@ define('utils',
 
     function urlunparam(url, params) {
         var qs = querystring(url);
-        for (var i = 0, p; p = params[i++];) {
+        for (var i = 0; i < params.length; i++) {
+            var p = params[i];
             if (!(p in qs)) {
                 continue;
             }
@@ -204,6 +209,21 @@ define('utils',
             ',left=' + centerCoords[0] + ',top=' + centerCoords[1]);
     }
 
+    function isSystemDateRecent() {
+        var rval = new Date().getFullYear() >= 2010;
+        if (!rval) {
+            log('System date appears to be incorrect!');
+        }
+        return rval;
+    }
+
+    function lang() {
+        return (navigator.l10n && navigator.l10n.language) ||
+            navigator.language ||
+            navigator.userLanguage;
+    }
+
+
     return {
         '_pd': _pd,
         'baseurl': baseurl,
@@ -214,6 +234,8 @@ define('utils',
         'fieldFocused': fieldFocused,
         'getVars': getVars,
         'initCharCount': initCharCount,
+        'isSystemDateRecent': isSystemDateRecent,
+        'lang': lang,
         'openWindow': openWindow,
         'querystring': querystring,
         'slugify': slugify,

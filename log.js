@@ -86,8 +86,8 @@ define('log', ['storage', 'utils'], function(storage, utils) {
         if (typeof data !== 'string') {
             return data;
         }
-        for (var i = 0, e; e = logger.unmentionables[i++];) {
-            data = data.replace(e, '---');
+        for (var i = 0; i < logger.unmentionables.length; i++) {
+            data = data.replace(logger.unmentionables[i], '---');
         }
         return data;
     };

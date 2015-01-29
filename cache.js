@@ -1,12 +1,12 @@
 define('cache',
-    ['log', 'rewriters', 'settings', 'storage', 'user', 'utils', 'underscore',
-     'z'],
-    function(log, rewriters, settings, storage, user, utils, _, z) {
+    ['log', 'settings', 'storage', 'user', 'utils', 'underscore', 'z'],
+    function(log, settings, storage, user, utils, _, z) {
     'use strict';
     var logger = log('cache');
 
     var cache = {};
     var cache_key = 'request_cache';
+    var rewriters = [];
 
     if (settings.offline_cache_enabled && settings.offline_cache_enabled()) {
         cache = storage.getItem(cache_key) || {};
@@ -139,8 +139,8 @@ define('cache',
     }
 
     function set(key, value) {
-        for (var i = 0, rw; rw = rewriters[i++];) {
-            var output = rw(key, value, cache);
+        for (var i = 0; i < rewriters.length; i++) {
+            var output = rewriters[i](key, value, cache);
             if (output === null) {
                 return;
             } else if (output) {
@@ -213,9 +213,11 @@ define('cache',
     }
 
     return {
+        addRewriter: function(rewriter) { rewriters.push(rewriter); },
         attemptRewrite: rewrite,
         bust: bust,
         cache: cache,
+        clearRewriters: function() { rewriters = []; },
         flush: flush,
         flush_expired: flush_expired,
         flush_signed: flush_signed,
