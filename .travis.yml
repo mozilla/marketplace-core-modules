@@ -1,6 +1,6 @@
 sudo: false
 install: 'npm install && bower install'
-script: 'karma start --single-run'
+script: './node_modules/karma/bin/karma start --single-run'
 language: node_js
 node_js:
     - 0.10
