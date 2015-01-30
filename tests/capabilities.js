@@ -1,84 +1,140 @@
-define(['assert', 'capabilities'], function(a, capabilities) {
-    var assert = a.assert;
+define('tests/capabilities',
+        ['assert', 'capabilities'],
+        function(a, capabilities) {
     var eq_ = a.eq_;
     var eeq_ = a.eeq_;
-    var feq_ = a.feq_;
 
-    describe('capabilities', function() {
-        it('capabilities device_platform', function() {
-            capabilities.firefoxOS = true;
-            eq_(capabilities.device_platform(), 'firefoxos');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = true;
-            eq_(capabilities.device_platform(), 'android');
-
-            capabilities.firefoxAndroid = false;
-            eq_(capabilities.device_platform(), 'desktop');
+    describe('capabilities.device_platform', function() {
+        it('can be firefoxos', function() {
+            var caps = {firefoxOS: true};
+            eq_(capabilities.device_platform(caps), 'firefoxos');
         });
 
-        it('capabilities device_formfactor', function() {
-            capabilities.firefoxOS = true;
-            capabilities.widescreen = function() { return false; };
-            eq_(capabilities.device_formfactor(), '');
-
-            capabilities.firefoxOS = true;
-            // Firefox OS "tablet" size is not currently supported/differenciated from mobile.
-            capabilities.widescreen = function() { return true; };
-            eq_(capabilities.device_formfactor(), '');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = true;
-            capabilities.widescreen = function() { return false; };
-            eq_(capabilities.device_formfactor(), 'mobile');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = true;
-            capabilities.widescreen = function() { return true; };
-            eq_(capabilities.device_formfactor(), 'tablet');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = false;
-            capabilities.widescreen = function() { return false; };
-            eq_(capabilities.device_formfactor(), '');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = false;
-            capabilities.widescreen = function() { return true; };
-            eq_(capabilities.device_formfactor(), '');
+        it('can be android', function() {
+            var caps = {firefoxOS: false, firefoxAndroid: true};
+            eq_(capabilities.device_platform(caps), 'android');
         });
 
-        it('capabilities device_type', function() {
-            capabilities.firefoxOS = true;
-            capabilities.widescreen = function() { return false; };
-            eq_(capabilities.device_type(), 'firefoxos');
+        it('can be desktop', function() {
+            var caps = {firefoxAndroid: false};
+            eq_(capabilities.device_platform(caps), 'desktop');
+        });
+    });
 
-            // Firefox OS "tablet" size is not currently supported/differenciated from mobile.
-            capabilities.widescreen = function() { return true; };
-            eq_(capabilities.device_type(), 'firefoxos');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = true;
-            capabilities.widescreen = function() { return false; };
-            eq_(capabilities.device_type(), 'android-mobile');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = true;
-            capabilities.widescreen = function() { return true; };
-            eq_(capabilities.device_type(), 'android-tablet');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = false;
-            capabilities.widescreen = function() { return false; };
-            eq_(capabilities.device_type(), 'desktop');
-
-            capabilities.firefoxOS = false;
-            capabilities.firefoxAndroid = false;
-            capabilities.widescreen = function() { return true; };
-            eq_(capabilities.device_type(), 'desktop');
+    describe('capabilities.device_formfactor', function() {
+        it('is nothing for firefoxOS mobile', function() {
+            var caps = {
+                firefoxOS: true,
+                firefoxAndroid: false,
+                widescreen: function() { return false; },
+            };
+            eq_(capabilities.device_formfactor(caps), '');
         });
 
-        it('capabilities.os Mac 10.9 Firefox', function() {
+        it('is nothing for firefoxOS tablet', function() {
+            var caps = {
+                firefoxOS: true,
+                firefoxAndroid: false,
+                widescreen: function() { return true; },
+            };
+            eq_(capabilities.device_formfactor(caps), '');
+        });
+
+        it('is mobile for Android mobile', function() {
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: true,
+                widescreen: function() { return false; },
+            };
+            eq_(capabilities.device_formfactor(caps), 'mobile');
+        });
+
+        it('is tablet for Android tablet', function() {
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: true,
+                widescreen: function() { return true; },
+            };
+            eq_(capabilities.device_formfactor(caps), 'tablet');
+        });
+
+        it('is nothing for other mobile', function() {
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: false,
+                widescreen: function() { return false; },
+            };
+            eq_(capabilities.device_formfactor(caps), '');
+        });
+
+        it('is nothing for other tablet', function() {
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: false,
+                widescreen: function() { return true; },
+            };
+            eq_(capabilities.device_formfactor(caps), '');
+        });
+    });
+
+    describe('capabilities.device_type', function() {
+        it('is firefoxos on FirefoxOS mobile', function() {
+            var caps = {
+                firefoxOS: true,
+                firefoxAndroid: false,
+                widescreen: function() { return false; },
+            };
+            eq_(capabilities.device_type(caps), 'firefoxos');
+        });
+
+        it('is firefoxOS on FirefoxOS tablet', function() {
+            var caps = {
+                firefoxOS: true,
+                firefoxAndroid: false,
+                widescreen: function() { return true; },
+            };
+            eq_(capabilities.device_type(caps), 'firefoxos');
+        });
+
+        it('is android-mobile on Android mobile', function() {
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: true,
+                widescreen: function() { return false; },
+            };
+            eq_(capabilities.device_type(caps), 'android-mobile');
+        });
+
+        it('is android-tablet on Android tablet', function() {
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: true,
+                widescreen: function() { return true; },
+            };
+            eq_(capabilities.device_type(caps), 'android-tablet');
+        });
+
+        it('is desktop on other mobile', function() {
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: false,
+                widescreen: function() { return false; },
+            };
+            eq_(capabilities.device_type(caps), 'desktop');
+        });
+
+        it('is desktop on other tablet', function() {
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: false,
+                widescreen: function() { return true; },
+            };
+            eq_(capabilities.device_type(caps), 'desktop');
+        });
+    });
+
+    describe('capabilities.os', function() {
+        it('handles Mac 10.9 Firefox', function() {
             var navigator = {
                 userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:23.0) Gecko/20100101 Firefox/23.0',
             };
@@ -88,7 +144,7 @@ define(['assert', 'capabilities'], function(a, capabilities) {
             eq_(os.slug, 'mac');
         });
 
-        it('capabilities.os Mac 10.10 Firefox', function() {
+        it('handles Mac 10.10 Firefox', function() {
             var navigator = {
                 userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:23.0) Gecko/20100101 Firefox/23.0',
             };
@@ -98,7 +154,7 @@ define(['assert', 'capabilities'], function(a, capabilities) {
             eq_(os.slug, 'mac');
         });
 
-        it('capabilities.os Mac 10.9 Safari', function() {
+        it('handles Mac 10.9 Safari', function() {
             var navigator = {
                 userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/600.2.5 (KHTML, like Gecko) Version/7.1.2 Safari/537.85.11',
             };
@@ -108,7 +164,7 @@ define(['assert', 'capabilities'], function(a, capabilities) {
             eq_(os.slug, 'mac');
         });
 
-        it('capabilities.os Windows IE 9', function() {
+        it('handles Windows IE 9', function() {
             var navigator = {
                 userAgent: 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)',
             };
@@ -118,7 +174,7 @@ define(['assert', 'capabilities'], function(a, capabilities) {
             eq_(os.slug, 'windows');
         });
 
-        it('capabilities.os Linux Firefox', function() {
+        it('handles Linux Firefox', function() {
             var navigator = {
                 userAgent: 'Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0',
             };
@@ -128,7 +184,7 @@ define(['assert', 'capabilities'], function(a, capabilities) {
             eq_(os.slug, 'linux');
         });
 
-        it('capabilities.os Android Firefox', function() {
+        it('handles Android Firefox', function() {
             var navigator = {
                 userAgent: 'Mozilla/5.0 (Android; Mobile; rv:26.0) Gecko/26.0 Firefox/26.0',
             };
