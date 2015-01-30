@@ -21,6 +21,12 @@ require.config({
         underscore: 'bower_components/underscore/underscore',
     },
 
+    shim: {
+        underscore: {
+            exports: '_',
+        },
+    },
+
     // dynamically load all test files
     deps: allTestFiles,
 

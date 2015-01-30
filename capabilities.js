@@ -78,10 +78,11 @@ define('capabilities', ['settings'], function(settings) {
     };
 
     /* Returns device platform name without the form factor ('dev' API parameter). */
-    static_caps.device_platform = function() {
-        if (static_caps.firefoxOS) {
+    static_caps.device_platform = function(caps) {
+        caps = caps || static_caps;
+        if (caps.firefoxOS) {
             return 'firefoxos';
-        } else if (static_caps.firefoxAndroid) {
+        } else if (caps.firefoxAndroid) {
             return 'android';
         }
         return 'desktop';
@@ -89,9 +90,10 @@ define('capabilities', ['settings'], function(settings) {
 
     /* Returns device form factor alone, i.e. 'tablet' or 'mobile' ('device' API parameter).
      * Only supported for Android currently. */
-    static_caps.device_formfactor = function() {
-        if (static_caps.firefoxAndroid) {
-            if (static_caps.widescreen()) {
+    static_caps.device_formfactor = function(caps) {
+        caps = caps || static_caps;
+        if (caps.firefoxAndroid) {
+            if (caps.widescreen()) {
                 return 'tablet';
             }
             return 'mobile';
@@ -100,9 +102,9 @@ define('capabilities', ['settings'], function(settings) {
     };
 
     /* Returns full device type information, e.g. 'android-mobile' or 'firefoxos' as exposed by the API. */
-    static_caps.device_type = function() {
-        var device_platform = static_caps.device_platform();
-        var device_formfactor = static_caps.device_formfactor();
+    static_caps.device_type = function(caps) {
+        var device_platform = static_caps.device_platform(caps);
+        var device_formfactor = static_caps.device_formfactor(caps);
 
         if (device_platform && device_formfactor) {
             return device_platform + '-' + device_formfactor;
