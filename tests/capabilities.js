@@ -1,4 +1,4 @@
-define(['assert', 'underscore', 'capabilities'], function(a, _, capabilities) {
+define(['assert', 'capabilities'], function(a, capabilities) {
     var assert = a.assert;
     var eq_ = a.eq_;
     var eeq_ = a.eeq_;

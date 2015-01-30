@@ -1,7 +1,7 @@
 {
   "name": "marketplace-core-modules",
   "version": "1.0.0",
-  "description": "Marketplace core JS modules.",
+  "description": "Core JS modules for Firefox Marketplace frontend projects",
   "main": "",
   "directories": {},
   "dependencies": {},
@@ -13,7 +13,7 @@
     "karma-mocha": "^0.1.10",
     "karma-requirejs": "^0.2.2",
     "mocha": "^2.1.0",
-    "requirejs": "^2.1.15",
+    "requirejs": "^2.1.15"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
