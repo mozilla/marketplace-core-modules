@@ -1,16 +1,21 @@
+/*
+    The meat of the "framework".
+    Handles page building including defer blocks (fragment loading),
+    rendering, in-place pagination.
+*/
 define('builder',
-    ['log', 'jquery', 'templates', 'models', 'requests', 'settings', 'z', 'nunjucks.compat'],
+    ['log', 'jquery', 'templates', 'models', 'requests', 'settings', 'z',
+     'nunjucks.compat'],
     function(log, $, nunjucks, models, requests, settings, z) {
+    'use strict';
+    var logger = log('builder');
 
-    var console = log('builder');
     var SafeString = nunjucks.require('runtime').SafeString;
-
     var counter = 0;
 
     var page = document.getElementById('page');
     if (!page) {
-        // We can't run without a <div id="page">
-        console.error('Could not start the builder; #page not found!');
+        logger.error('Could not start the builder; #page not found!');
         return;
     }
 
@@ -47,7 +52,7 @@ define('builder',
         env.dev = nunjucks.env.dev;
         env.cache = nunjucks.templates;
 
-        // For retrieving AJAX results from the view.
+        // To retrieve results from the view.
         var result_map = this.results = {};
         var result_handlers = {};
 
@@ -57,7 +62,7 @@ define('builder',
 
         function make_paginatable(injector, placeholder, target) {
             if (!placeholder) {
-                console.log('No element to paginate');
+                logger.log('No element to paginate');
                 return;
             }
 
@@ -67,32 +72,40 @@ define('builder',
             }
 
             el.addEventListener('click', function() {
-                el.classList.add('hide');
+                el.parentNode.classList.add('loading');
                 el.parentNode.classList.remove('pagination-error');
-                // Call the injector to load the next page's URL into the
-                // more button's parent. `target` is the selector to extract
-                // from the newly built HTML to inject into the currently
-                // visible page.
+                // Call injector to load next page's URL into `li`.
+                // `target` is selector to extract from newly built HTML to
+                // inject into the currently visible page.
                 var url = el.getAttribute('data-url');
                 injector(url, el.parentNode, target).done(function() {
-                    console.log('Pagination completed');
+                    logger.log('Pagination completed');
                     fire(page, 'loaded_more');
                 }).fail(function() {
                     url += (url.indexOf('?') + 1 ? '&' : '?') + '_bust=' + (new Date()).getTime();
-                    parse_and_replace(render(settings.pagination_error_template, {more_url: url}), el.parentNode);
+                    parse_and_replace(
+                        render(settings.pagination_error_template, {
+                            more_url: url
+                        }),
+                        el.parentNode
+                    );
                     make_paginatable(injector, placeholder, target);
+                    fire(page, 'builder-pagination-failed', {url: url});
                 });
             }, false);
         }
 
         function trigger_fragment_loaded(data) {
             fire(page, 'fragment_loaded', data);
+
         }
         function trigger_fragment_load_failed(data) {
             fire(page, 'fragment_load_failed', data);
         }
 
-        // This pretends to be the nunjucks extension that does the magic.
+        // Defer blocks.
+        // Adds a custom Nunjucks extension. Nunjucks compiler had to be hacked
+        // to allow this (in mozilla/commonplace).
         this.env.addExtension('defer', {
             run: function(context, signature, body, placeholder, empty, except) {
                 var uid = 'ph_' + counter++;
@@ -114,17 +127,17 @@ define('builder',
                     }
 
                     function get_result(data, dont_cast) {
-                        // `pluck` pulls the value out of the response.
-                        // Equivalent to `this = this[pluck]`
+                        // `pluck` pulls val out of response (this=this.pluck).
                         if ('pluck' in signature) {
                             data = data[signature.pluck];
                         }
-                        // `as` passes the data to the models for caching.
+                        // `as` passes data to models for caching.
                         if (data && !dont_cast && 'as' in signature) {
-                            console.groupCollapsed('Casting ' + signature.as + 's to model cache...');
+                            logger.groupCollapsed('Casting ' + signature.as + 's to model cache...');
                             models(signature.as).cast(data);
-                            console.groupEnd();
+                            logger.groupEnd();
                         }
+
                         var content = '';
                         if (empty && (!data || Array.isArray(data) && data.length === 0)) {
                             content = empty();
@@ -132,11 +145,12 @@ define('builder',
                             context.ctx.this = data;
                             content = body();
                         }
+
                         if (extract) {
                             try {
                                 content = parse_and_find(content, extract).innerHTML;
                             } catch (e) {
-                                console.error('There was an error extracting the result from the rendered response.');
+                                logger.error('Error extracting result from rendered response.');
                                 content = error_template;
                             }
                         }
@@ -147,13 +161,13 @@ define('builder',
                         has_cached_elements = true;
 
                         var rendered;
-                        // This will run synchronously.
+                        // request will run sync since it is cached.
                         request.done(function(data) {
                             context.ctx.response = data;
                             rendered = get_result(data, true);
 
-                            // Now update the response with the values from the model cache
-                            // For details, see bug 870447
+                            // Update the response with vals from model cache
+                            // (bug 870447).
                             if (data && 'as' in signature) {
                                 var resp = data;
                                 var plucked = 'pluck' in signature;
@@ -172,10 +186,10 @@ define('builder',
                                 } else if (plucked) {
                                     data[signature.pluck] = uncaster(resp);
                                 }
-                                // We can't do this for requests which have no pluck
-                                // and aren't an array. :(
+                                // else: can't model cache requests with no
+                                // pluck and aren't an array. :(
 
-                                // Update the model cache in the background (bug 995288).
+                                // Update model cache in bg (bug 995288).
                                 pool.get(url).done(function(data) {
                                     models(signature.as).cast(data);
                                 });
@@ -195,6 +209,7 @@ define('builder',
                                 });
                             });
                         }
+
                         return request;
                     }
 
@@ -203,6 +218,7 @@ define('builder',
                         if (!el) {
                             return;
                         }
+
                         context.ctx.response = data;
                         var content = get_result(data);
                         if (replace) {
@@ -210,11 +226,13 @@ define('builder',
                         } else {
                             el.innerHTML = content;
                         }
+
                         if (signature.paginate) {
                             make_paginatable(injector, el, signature.paginate);
                         }
 
-                        trigger_fragment_loaded({context: context, signature: signature});
+                        trigger_fragment_loaded({context: context,
+                                                 signature: signature});
 
                     }).fail(function(xhr, text, code, response) {
                         if (!replace) {
@@ -226,16 +244,22 @@ define('builder',
                             context.ctx.error = code;
                             el.innerHTML = except ? except() : error_template;
                         }
-                        trigger_fragment_load_failed({context: context, signature: signature});
+                        trigger_fragment_load_failed({context: context,
+                                                      signature: signature});
                     });
                     return request;
                 };
-                injector(signature.url);
-                if (!out) {
-                    out = '<div class="loading">' + (placeholder ? placeholder() : '') + '</div>';
-                }
 
-                return new SafeString('<div id="' + uid + '" class="placeholder">' + out + '</div>');
+                injector(signature.url);
+
+                if (!out) {
+                    out = '<div class="loading">' +
+                        (placeholder ? placeholder() : '') +
+                    '</div>';
+                }
+                return new SafeString('<div id="' + uid + '" class="placeholder">' +
+                    out +
+                '</div>');
             }
         });
 
@@ -311,6 +335,7 @@ define('builder',
                 return context || (context = z.context = {});
             };
         })();
+
         this.z = function(key, val) {
             context()[key] = val;
             switch (key) {
@@ -336,9 +361,12 @@ define('builder',
                 fire(page, 'unloading');
                 last_builder.terminate();
             }
-            return last_builder = new Builder();
+            last_builder = new Builder();
+            return last_builder;
         },
-        getLastBuilder: function() {return last_builder;}
+        getLastBuilder: function() {
+            return last_builder;
+        }
     };
 
 });
