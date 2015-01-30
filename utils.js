@@ -1,6 +1,10 @@
 define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
 
     var ngettext = l10n.ngettext;
+    // This is a circular dependency.
+    function log(msg) {
+        require('log')('utils').log(msg);
+    }
 
     _.extend(String.prototype, {
         strip: function(str) {
@@ -192,6 +196,14 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
             ',left=' + centerCoords[0] + ',top=' + centerCoords[1]);
     }
 
+    function isSystemDateRecent() {
+        var rval = new Date().getFullYear() >= 2010;
+        if (!rval) {
+            log('System date appears to be incorrect!');
+        }
+        return rval;
+    }
+
     return {
         '_pd': _pd,
         'baseurl': baseurl,
@@ -202,6 +214,7 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         'fieldFocused': fieldFocused,
         'getVars': getVars,
         'initCharCount': initCharCount,
+        'isSystemDateRecent': isSystemDateRecent,
         'openWindow': openWindow,
         'querystring': querystring,
         'slugify': slugify,

@@ -1,8 +1,12 @@
 define('urls',
-    ['format', 'log', 'routes_api', 'routes_api_args', 'settings', 'user', 'utils'],
-    function(format, log, api_endpoints, api_args, settings, user, utils) {
+    // This depends on 'routes_api' and 'routes_api_args' which are from fireplace.
+    ['format', 'log', 'settings', 'user', 'utils'],
+    function(format, log, settings, user, utils) {
 
     var console = log('urls');
+
+    var api_endpoints = {};  // 'routes_api'
+    var api_args = {};  // 'routes_api_args'
 
     // The CDN URL is the same as the media URL but without the `/media/` path.
     if ('media_url' in settings) {
