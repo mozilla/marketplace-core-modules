@@ -9,10 +9,6 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             cache.purge();
         });
 
-        it('fails a test', function() {
-            eq_('foobar', 'barfoo');
-        });
-
         it('has set/has/get/bust', function() {
             var key = 'test:thisisatest';
             var str = 'foobartest';
