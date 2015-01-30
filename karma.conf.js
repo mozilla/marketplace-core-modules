@@ -24,7 +24,7 @@ module.exports = function(config) {
             'tests/capabilities.js',
             'tests/helpers.js',
             'tests/l10n.js',
-            // 'tests/models.js',
+            'tests/models.js',
             // 'tests/navigation.js',
             // 'tests/requests.js',
             // 'tests/site_config.js',
