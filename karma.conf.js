@@ -10,7 +10,7 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha', 'requirejs'],
+    frameworks: ['mocha', 'requirejs', 'sinon'],
 
 
     // list of files / patterns to load in the browser
@@ -19,6 +19,7 @@ module.exports = function(config) {
       'bower_components/jquery/jquery.js',
       'bower_components/underscore/underscore.js',
       {pattern: '*.js', included: false},
+      'tests/cache.js',
       'tests/capabilities.js',
       'tests/helpers.js',
       'tests/utils.js',
