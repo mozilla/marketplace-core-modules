@@ -19,7 +19,9 @@ module.exports = function(config) {
       'bower_components/jquery/jquery.js',
       'bower_components/underscore/underscore.js',
       {pattern: '*.js', included: false},
-      {pattern: 'tests/capabilities.js', included: false}
+      'tests/capabilities.js',
+      'tests/helpers.js',
+      'tests/utils.js',
     ],
 
 
