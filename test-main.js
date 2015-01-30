@@ -1,6 +1,36 @@
 var allTestFiles = ['assert', 'underscore'];
 var TEST_REGEXP = /tests\/.*\.js$/i;
 
+// Automatically clenaup sinon spies and stubs.
+var realSinon = sinon;
+beforeEach(function() {
+    sinon = realSinon.sandbox.create();
+});
+afterEach(function() {
+    sinon.restore();
+    sinon = realSinon;
+});
+
+function withSettings(changes, test) {
+    var settings = require('settings');
+    var changed = {};
+    Object.keys(changes).forEach(function(key) {
+        // Remember if it exists so we can delete it if it doesn't.
+        if (key in settings) {
+            changed[key] = settings[key];
+        }
+        settings[key] = changes[key];
+    });
+    test();
+    Object.keys(changes).forEach(function(key) {
+        if (key in changed) {
+            settings[key] = changed[key];
+        } else {
+            delete settings[key];
+        }
+    });
+}
+
 var pathToModule = function(path) {
     return path.replace(/^\/base\//, '').replace(/\.js$/, '');
 };
