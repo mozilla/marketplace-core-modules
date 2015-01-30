@@ -3,11 +3,14 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
     var eq_ = a.eq_;
     var eeq_ = a.eeq_;
     var feq_ = a.feq_;
-    var mock = a.mock;
 
     describe('cache', function() {
         this.afterEach(function() {
             cache.purge();
+        });
+
+        it('fails a test', function() {
+            eq_('foobar', 'barfoo');
         });
 
         it('has set/has/get/bust', function() {
