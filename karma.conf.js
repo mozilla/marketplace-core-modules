@@ -23,7 +23,7 @@ module.exports = function(config) {
             'tests/cache.js',
             'tests/capabilities.js',
             'tests/helpers.js',
-            // 'tests/l10n.js',
+            'tests/l10n.js',
             // 'tests/models.js',
             // 'tests/navigation.js',
             // 'tests/requests.js',
