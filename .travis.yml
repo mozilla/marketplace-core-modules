@@ -1,0 +1,10 @@
+sudo: false
+install: 'npm install && bower install'
+script: 'karma start --single-run'
+language: node_js
+node_js:
+    - 0.10
+cache:
+    directories:
+        - 'node_modules'
+        - 'bower_components'
