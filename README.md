@@ -18,7 +18,7 @@ in that directory!
 
 When you updating a module:
 
-- Bump the version in ```bower.json```
+- Bump the version in ```bower.json``` and update the changelog with what's changed.
 - **Git tag** that version and push to Github
   (e.g., ```git tag v1.2.0 && git push origin v1.2.0```)
 - Bump your project's bower.json to pull in the new changes
@@ -36,3 +36,10 @@ When adding an core module:
 
 The Commonplace step will make it so Marketplace frontend projects won't have
 to manually configure the module into their RequireJS configurations.
+
+## Changelog
+
+### 1.6.3
+
+- Move setInterval for login popup.
+- Increase login popup closure checking interval from 150ms -> 500ms.
