@@ -62,9 +62,9 @@ define('models',
         }
     }
 
-    return function(type) {
-        var prototypes = settings.model_prototypes;
+    var prototypes = settings.model_prototypes;
 
+    return function(type) {
         if (!(type in prototypes)) {
             throw new Error('Unknown model "' + type + '"');
         }

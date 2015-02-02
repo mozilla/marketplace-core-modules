@@ -1,32 +1,30 @@
-define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], function(a, _, cache, models, requests) {
+define('tests/models', ['assert', 'underscore', 'Squire'], function(a, _, Squire) {
     var assert = a.assert;
     var eq_ = a.eq_;
     var eeq_ = a.eeq_;
     var mock = a.mock;
 
-    describe('models', function() {
-        this.afterEach(function() {
-            withSettings({model_prototypes: {foo: 'id'}}, function() {
-                cache.flush();
-                models('foo').flush();
+    function injector() {
+        return new Squire();
+    }
+
+    describe.only('models', function() {
+        it('errors on invalid type', function(done, fail) {
+            injector().require(['models'], function(models) {
+                try {
+                    var d1 = models('does not exist trololo');
+                    fail();
+                } catch(e) {
+                    done();
+                }
             });
         });
 
-        it('errors on invalid type', function(done, fail) {
-            try {
-                var d1 = models('does not exist trololo');
-                fail();
-            } catch(e) {
-                done();
-            }
-        });
-
-        it('can cast/lookup/purge', function() {
-            var newSettings = {
+        it('can cast/lookup/purge', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id', 'dummy2': 'id'}
-            };
-            withSettings(newSettings, function() {
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
                 var d2 = models('dummy2');
 
@@ -53,15 +51,13 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 eeq_(d1.lookup(1), undefined);
                 eeq_(d2.lookup(1), undefined);
                 eeq_(d2.lookup(2), undefined);
-            });
-        });
+            }));
 
-        it('can cast/lookup/delete', function() {
-            var newSettings = {
+        it('can cast/lookup/delete', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            withSettings(newSettings, function() {
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
                 d1.cast({
                     id: 1,
@@ -73,15 +69,13 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 eq_(d1.lookup(1).val, 'foo');
                 d1.del(1);
                 eeq_(d1.lookup(1), undefined);
-            });
-        });
+            }));
 
-        it('can cast/lookup/delete val', function() {
-            var newSettings = {
+        it('can cast/lookup/delete val', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            withSettings(newSettings, function() {
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
                 d1.cast({
                     id: 1,
@@ -93,15 +87,13 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 eq_(d1.lookup(1).val, 'foo');
                 d1.del('foo', 'val');
                 eeq_(d1.lookup(1), undefined);
-            });
-        });
+            }));
 
-        it('can cast/uncast', function() {
-            var newSettings = {
+        it('can cast/uncast', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            withSettings(newSettings, function() {
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
 
                 var obj1 = {
@@ -115,15 +107,13 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
 
                 d1.cast(obj1);
                 eq_(d1.uncast(obj2).val, 'foo');
-            });
-        });
+            }));
 
-        it('model cast/uncast lists', function() {
-            var newSettings = {
+        it('model cast/uncast lists', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            withSettings(newSettings, function() {
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
 
                 var obj1 = {
@@ -151,20 +141,17 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 ]);
                 eq_(output[0].val, 'foo');
                 eq_(output[1].val, 'bar');
-            });
-        });
+            }));
 
         it('model get hit', function(done) {
-            var newSettings = {
+            injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-
-            sinon.stub(requests, 'get', function(x) {
-                return 'surprise! ' + x;
-            });
-
-            withSettings(newSettings, function() {
+            }).mock('requests', {
+                get: function(x) {
+                    return 'surprise! ' + x;
+                },
+            }).require(['models'], function(models) {
                 var d1 = models('dummy');
 
                 d1.cast({
@@ -181,47 +168,46 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
             });
         });
 
-        it('model get miss', function() {
-            var newSettings = {
+        it('model get miss', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            sinon.stub(requests, 'get', function(x) {
-                return 'surprise! ' + x;
-            });
-            withSettings(newSettings, function() {
+            })
+            .mock('requests', {
+                get: function(x) {
+                    return 'surprise! ' + x;
+                },
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
 
                 var obj = d1.get('zip', 1);
                 console.log(JSON.stringify(obj));
 
                 eq_(obj, 'surprise! zip');
-            });
-        });
+            }));
 
-        it('model get getter', function() {
-            var newSettings = {
+        it('model get getter', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            sinon.stub(requests, 'get', function(x) {
-                return "not the droids you're looking for";
-            });
-            withSettings(newSettings, function() {
+            })
+            .mock('requests', {
+                get: function(x) {
+                    return "not the droids you're looking for";
+                },
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
 
                 eq_(d1.get('zip', 1, function(x) {
                     return 'hooray! ' + x;
                 }), 'hooray! zip');
-            });
-        });
+            }));
 
-        it('model lookup by', function() {
-            var newSettings = {
+        it('model lookup by', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            withSettings(newSettings, function() {
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
 
                 d1.cast({
@@ -237,15 +223,13 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 var value = d1.lookup('bar', 'val');
                 eq_(value.id, 'foo');
                 eq_(value.val, 'bar');
-            });
-        });
+            }));
 
-        it('model lookup miss', function() {
-            var newSettings = {
+        it('model lookup miss', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            withSettings(newSettings, function() {
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
 
                 // Just a decoy
@@ -255,15 +239,13 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 });
 
                 eeq_(d1.lookup('not an id'), undefined);
-            });
-        });
+            }));
 
-        it('model cast list', function() {
-            var newSettings = {
+        it('model cast list', injector().mock('settings', {
                 offline_cache_enabled: function () { return false; },
                 model_prototypes: {'dummy': 'id'}
-            };
-            withSettings(newSettings, function() {
+            })
+            .run(['models'], function(models) {
                 var d1 = models('dummy');
 
                 // Just a decoy
@@ -274,7 +256,6 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 ]);
 
                 eq_(d1.lookup('abc').val, 2);
-            });
-        });
+            }));
     });
 });
