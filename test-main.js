@@ -1,5 +1,5 @@
 var allTestFiles = ['assert', 'underscore'];
-var TEST_REGEXP = /tests\/.*\.js$/i;
+var TEST_REGEXP = /dist\/.*\.js$/i;
 
 // Automatically clenaup sinon spies and stubs.
 var realSinon = sinon;

@@ -1,12 +1,13 @@
-(function() {
-var a = require('assert');
+import a from 'assert';
+import defer from 'defer';
+
 var assert = a.assert;
 var eq_ = a.eq_;
 var feq_ = a.feq_;
 var contains = a.contains;
 var mock = a.mock;
-var defer = require('defer');
 
+/*
 
 function mock_xhr(args) {
     var def = defer.Deferred();
@@ -269,4 +270,4 @@ test('requests.pool finish resolution', function(done, fail) {
     );
 });
 
-})();
+*/
