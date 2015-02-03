@@ -13,7 +13,7 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             var key = 'test:thisisatest';
             var str = 'foobartest';
             assert(!cache.has(key));
-            cache.set(key, str + 'foo');
+            cache.set(key, str);
             assert(cache.has(key));
             eq_(cache.get(key), str);
             assert(cache.has(key));
