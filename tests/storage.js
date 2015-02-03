@@ -1,3 +1,4 @@
+/*
 (function() {
 var a = require('assert');
 var assert = a.assert;
@@ -49,3 +50,4 @@ test('remove items from storage', function(done){
 });
 
 })();
+*/

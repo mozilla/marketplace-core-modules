@@ -1,3 +1,4 @@
+/*
 (function() {
 var a = require('assert');
 var assert = a.assert;
@@ -240,3 +241,4 @@ test('api url params api_args', function(done, fail) {
 });
 
 })();
+*/

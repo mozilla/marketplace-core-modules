@@ -3,6 +3,7 @@ define('requests',
     function(cache, defer, log, settings, utils) {
 
     var console = log('req');
+    var helpers = {ajax: _ajax};
 
     var hooks = {};
     function callHooks(event, data) {
@@ -86,7 +87,7 @@ define('requests',
     }
 
     function ajax(type, url, data) {
-        var def = _ajax(type, url, data);
+        var def = helpers.ajax(type, url, data);
         // then() returns a new promise, so don't return that.
         def.then(function(resp, xhr) {
             callHooks('success', [resp, xhr, type, url, data]);
@@ -285,6 +286,7 @@ define('requests',
         on: on,
         RawData: RawData,
         // This is for testing purposes.
-        _set_xhr: function(func) {_ajax = func;}
+        helpers: helpers,
+        clearHooks: function() { hooks = {}; },
     };
 });
