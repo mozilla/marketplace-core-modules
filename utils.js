@@ -115,7 +115,8 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
 
     function urlunparam(url, params) {
         var qs = querystring(url);
-        for (var i = 0, p; p = params[i++];) {
+        for (var i = 0, p; i < params.length; i++) {
+            p = params[i];
             if (!(p in qs)) {
                 continue;
             }
