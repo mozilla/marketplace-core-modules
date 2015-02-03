@@ -115,9 +115,8 @@ define('cache',
     }
 
     function set(key, value) {
-        for (var i = 0, rw; i < rewriters.length; i++) {
-            rw = rewriters[i];
-            var output = rw(key, value, cache);
+        for (var i = 0; i < rewriters.length; i++) {
+            var output = rewriters[i](key, value, cache);
             if (output === null) {
                 return;
             } else if (output) {

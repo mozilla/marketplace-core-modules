@@ -27,8 +27,8 @@ define('buckets', [], function() {
             // Camel-case it.
             property = property[0].toUpperCase() + property.substr(1);
 
-            for (var i = 0, e; i < prefixes.length; i++) {
-                e = prefixes[i];
+            for (var i = 0; i < prefixes.length; i++) {
+                var e = prefixes[i];
                 try {
                     if (context[e + property] !== undefined) {
                         return context[e + property];

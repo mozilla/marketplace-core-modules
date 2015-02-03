@@ -9,8 +9,8 @@ define('requests',
         if (!(event in hooks)) {
             return;
         }
-        for (var i = 0, e; i < hooks[event].length; i++) {
-            e = hooks[event][i];
+        for (var i = 0; i < hooks[event].length; i++) {
+            var e = hooks[event][i];
             e.apply(e, data);
         }
     }
@@ -250,8 +250,8 @@ define('requests',
         this.put = function() {return make(put, arguments);};
 
         this.abort = function() {
-            for (var i = 0, request; i < request.length; i++) {
-                request = requests[i];
+            for (var i = 0; i < requests.length; i++) {
+                var request = requests[i];
                 if (request.abort === undefined || request.readyState === 4) {
                     continue;
                 }
