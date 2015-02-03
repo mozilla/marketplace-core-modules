@@ -1,6 +1,9 @@
 define('views',
-    ['builder', 'log', 'routes', 'underscore', 'utils', 'views/not_found', 'z'],
-    function(builder, log, routes, _, utils, not_found, z) {
+    ['builder', 'log', 'underscore', 'utils', 'views/not_found', 'z'],
+    function(builder, log, _, utils, not_found, z) {
+
+    // FIXME: routes need to come from somewhere.
+    var routes = {map: function() {}};
 
     var console = log('views');
 
