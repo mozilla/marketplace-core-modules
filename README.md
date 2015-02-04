@@ -21,6 +21,7 @@ When you updating a module:
 - Bump the version in ```bower.json```
 - **Git tag** that version and push to Github
   (e.g., ```git tag v1.2.0 && git push origin v1.2.0```)
+- Add a release entry with the details of the changes in the tag you've just added here https://github.com/mozilla/marketplace-core-modules/releases
 - Bump your project's bower.json to pull in the new changes
 - Run ```make install``` to get these modules into your project and into your
   RequireJS development configuration
