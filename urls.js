@@ -1,24 +1,24 @@
 define('urls',
     // This depends on 'routes_api' and 'routes_api_args' which are from fireplace.
-    ['format', 'log', 'settings', 'user', 'utils'],
-    function(format, log, settings, user, utils) {
+    ['api_args', 'api_endpoints', 'format', 'log', 'settings', 'user', 'utils'],
+    function(api_args, api_endpoints, format, log, settings, user, utils) {
 
     var console = log('urls');
 
-    var api_endpoints = {};  // 'routes_api'
-    var api_args = {};  // 'routes_api_args'
-
-    // The CDN URL is the same as the media URL but without the `/media/` path.
-    if ('media_url' in settings) {
-        var a = document.createElement('a');
-        a.href = settings.media_url;
-        settings.cdn_url = a.protocol + '//' + a.host;
-        console.log('Using settings.media_url: ' + settings.media_url);
-        console.log('Changed settings.cdn_url: ' + settings.cdn_url);
-    } else {
-        settings.cdn_url = settings.api_url;
-        console.log('Changed settings.cdn_url to settings.api_url: ' + settings.api_url);
+    function set_cdn_url() {
+        // The CDN URL is the same as the media URL but without the `/media/` path.
+        if ('media_url' in settings) {
+            var a = document.createElement('a');
+            a.href = settings.media_url;
+            settings.cdn_url = a.protocol + '//' + a.host;
+            console.log('Using settings.media_url: ' + settings.media_url);
+            console.log('Changed settings.cdn_url: ' + settings.cdn_url);
+        } else {
+            settings.cdn_url = settings.api_url;
+            console.log('Changed settings.cdn_url to settings.api_url: ' + settings.api_url);
+        }
     }
+    set_cdn_url();
 
     var group_pattern = /\([^\)]+\)/;
     var optional_pattern = /(\(.*\)|\[.*\]|.)\?/g;
@@ -85,12 +85,12 @@ define('urls',
     }
 
     function api(endpoint, args, params) {
-        if (!(endpoint in api_endpoints)) {
+        if (!(endpoint in api_endpoints.endpoints)) {
             console.error('Invalid API endpoint: ' + endpoint);
             return '';
         }
 
-        var path = format.format(api_endpoints[endpoint], args || []);
+        var path = format.format(api_endpoints.endpoints[endpoint], args || []);
         var url = apiHost(path) + path;
 
         if (params) {
@@ -116,6 +116,7 @@ define('urls',
 
     function media(path) {
         var media_url = settings.media_url;
+        console.log('MEDIA_URL ' + media_url);
         // Media URL should end with trailing slash.
         if (media_url.substr(-1) !== '/') {
             media_url += '/';
@@ -145,6 +146,7 @@ define('urls',
                 params: apiParams
             }
         },
-        media: media
+        media: media,
+        set_cdn_url: set_cdn_url,
     };
 });

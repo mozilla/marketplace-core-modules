@@ -11,7 +11,7 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
         return def;
     }
 
-    describe.only('requests.get', function() {
+    describe('requests.get', function() {
         this.beforeEach(function() {
             sinon.stub(requests.helpers, 'ajax', mock_xhr);
         });
@@ -102,51 +102,48 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
 
     methods_to_test.forEach(function(v) {
         describe('requests.' + v, function() {
-            it('requests.' + v, function(done, fail) {
-                mock(
-                    'requests', {},
-                    function(requests) {
-                        requests._set_xhr(mock_xhr);
-                        var def = requests[v]('foo/bar', data);
-                        eq_(def.args[0], test_output[v][0]);
-                        eq_(def.args[1], test_output[v][1]);
-                        eq_(def.args[2], test_output[v][2]);
-                        def.done(function(data) {
-                            eq_(data, 'sample data');
-                            done();
-                        }).fail(fail);
-                        def.resolve('sample data');
-                    }, fail
-                );
+            this.beforeEach(function() {
+                sinon.stub(requests.helpers, 'ajax', mock_xhr);
             });
 
-            it('requests.' + v + ' never cached', function(done, fail) {
-                mock(
-                    'requests', {},
-                    function(requests) {
-                        requests._set_xhr(mock_xhr);
-                        var uncached = requests.get('foo/bar');
-                        assert(!('__cached' in uncached));
-                        uncached.resolve('data to cache');
+            this.afterEach(function() {
+                cache.flush();
+            });
 
-                        requests[v]('foo/bar', {foo: 'bar'});
-                        assert(!('__cached' in uncached));
-                        uncached.resolve('data to cache');
+            it('makes requests', function(done, fail) {
+                var def = requests[v]('foo/bar', data);
+                eq_(def.args[0], test_output[v][0]);
+                eq_(def.args[1], test_output[v][1]);
+                eq_(def.args[2], test_output[v][2]);
+                def.done(function(data) {
+                    eq_(data, 'sample data');
+                    done();
+                }).fail(fail);
+                def.resolve('sample data');
+            });
 
-                        var def = requests[v]('foo/bar', {foo: 'bar'});
-                        assert(!('__cached' in def));
+            it('is never cached', function(done, fail) {
+                var uncached = requests.get('foo/bar');
+                assert(!('__cached' in uncached));
+                uncached.resolve('data to cache');
 
-                        def.done(function(data) {
-                            eq_(data, 'boop');
-                            done();
-                        }).fail(fail);
-                        def.resolve('boop');
-                    }, fail
-                );
+                requests[v]('foo/bar', {foo: 'bar'});
+                assert(!('__cached' in uncached));
+                uncached.resolve('data to cache');
+
+                var def = requests[v]('foo/bar', {foo: 'bar'});
+                assert(!('__cached' in def));
+
+                def.done(function(data) {
+                    eq_(data, 'boop');
+                    done();
+                }).fail(fail);
+                def.resolve('boop');
             });
         });
     });
 
+    /*
     describe('requests.pool', function() {
         it('requests.pool methods', function(done, fail) {
             mock(
@@ -255,4 +252,5 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
             );
         });
     });
+    */
 });

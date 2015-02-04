@@ -1,90 +1,55 @@
-/*
-(function() {
-var a = require('assert');
-var eq_ = a.eq_;
-var feq_ = a.feq_;
-var contains = a.contains;
-var mock = a.mock;
-var defer = require('defer');
-var urls = require('urls');
+define('tests/site_config', ['assert', 'defer', 'requests', 'settings', 'site_config', 'urls', 'z'], function(a, defer, requests, settings, siteConfig, urls, z) {
+    var eq_ = a.eq_;
+    var feq_ = a.feq_;
+    var contains = a.contains;
+    var mock = a.mock;
 
-function mockSiteConfigRequestSuccess(data) {
-    return function(args) {
-        var def = defer.Deferred();
-        def.args = args;
-        def.resolve(data);
-        return def;
-    };
-}
+    function mockSiteConfigRequestSuccess(data) {
+        sinon.stub(requests, 'get', function(args) {
+            var def = defer.Deferred();
+            def.args = args;
+            def.resolve(data);
+            return def;
+        });
+    }
 
-test('sets waffle switches', function(done, fail) {
-    var settings = {
-        api_cdn_whitelist: {},
-        switches: []
-    };
-    mock(
-        'site_config',
-        {
-            requests: {
-                get: mockSiteConfigRequestSuccess({
+    describe('site_config', function() {
+        this.afterEach(function() {
+            delete settings.fxa_auth_state;
+            delete settings.fxa_auth_url;
+        });
+
+        it('sets waffle switches', function() {
+            withSettings({api_cdn_whitelist: {}, switches: []}, function() {
+                mockSiteConfigRequestSuccess({
                     waffle: {
                         switches: ['dummy-switch']
                     }
-                }
-            )},
-            settings: settings,
-        },
-        function(siteConfig) {
-            var promise = siteConfig.promise;
-            promise.then(function() {
-                eq_(settings.switches.length, 1);
-                contains(settings.switches, 'dummy-switch');
-                done();
+                });
+                siteConfig.fetch().then(function() {
+                    eq_(settings.switches.length, 1);
+                    contains(settings.switches, 'dummy-switch');
+                });
             });
-        },
-        fail
-    );
-});
+        });
 
-test('sets waffle switches object', function(done, fail) {
-    var settings = {
-        api_cdn_whitelist: {},
-        switches: []
-    };
-    mock(
-        'site_config',
-        {
-            requests: {
-                get: mockSiteConfigRequestSuccess({
+        it('sets waffle switches object', function() {
+            withSettings({api_cdn_whitelist: {}, switches: []}, function() {
+                mockSiteConfigRequestSuccess({
                     waffle: {
                         // Not an array, old-style response, will be ignored.
                         switches: {'dummy-switch': {'somedata': 1}}
                     }
-                }
-            )},
-            settings: settings,
-        },
-        function(siteConfig) {
-            var promise = siteConfig.promise;
-            promise.then(function() {
-                eq_(settings.switches.length, 0);
-                done();
+                });
+                siteConfig.fetch().then(function() {
+                    eq_(settings.switches.length, 0);
+                });
             });
-        },
-        fail
-    );
-});
+        });
 
-test('sets fxa auth', function(done, fail) {
-    var settings = {
-        api_cdn_whitelist: {},
-        switches: []
-    };
-    mock(
-        'site_config',
-        {
-            requests: {
-                get: mockSiteConfigRequestSuccess({
+        it('sets fxa auth', function() {
+            withSettings({api_cdn_whitelist: {}, switches: []}, function() {
+                mockSiteConfigRequestSuccess({
                     waffle: {
                         switches: ['dummy-switch']
                     },
@@ -92,117 +57,71 @@ test('sets fxa auth', function(done, fail) {
                         fxa_auth_url: 'http://ngokevin.com?client_id=abc123',
                         fxa_auth_state: 'somemoreseolongtoken'
                     }
-                }
-            )},
-            settings: settings,
-        },
-        function(siteConfig) {
-            siteConfig.promise.then(function() {
-                // We can't be sure of the client_id since it will change based
-                // on the URL you use to run the tests.
-                eq_(settings.fxa_auth_url.indexOf('http://ngokevin.com?client_id='), 0);
-                eq_(settings.fxa_auth_state, 'somemoreseolongtoken');
-                done();
+                });
+                siteConfig.fetch().then(function() {
+                    // We can't be sure of the client_id since it will change based
+                    // on the URL you use to run the tests.
+                    eq_(settings.fxa_auth_url.indexOf('http://ngokevin.com?client_id='), 0);
+                    eq_(settings.fxa_auth_state, 'somemoreseolongtoken');
+                });
             });
-        },
-        fail
-    );
-});
+        });
 
-test('handles no fxa auth data', function(done, fail) {
-    var settings = {
-        api_cdn_whitelist: {},
-        switches: []
-    };
-    mock(
-        'site_config',
-        {
-            requests: {
-                get: mockSiteConfigRequestSuccess({
+        it('handles no fxa auth data', function() {
+            withSettings({api_cdn_whitelist: {}, switches: []}, function() {
+                mockSiteConfigRequestSuccess({
                     waffle: {
                         switches: ['dummy-switch']
                     },
-                })
-            },
-            settings: settings,
-        },
-        function(siteConfig) {
-            var promise = siteConfig.promise;
-            promise.then(function() {
-                eq_(settings.fxa_auth_url, undefined);
-                eq_(settings.fxa_auth_state, undefined);
-                done();
+                });
+                siteConfig.fetch().then(function() {
+                    eq_(settings.fxa_auth_url, undefined);
+                    eq_(settings.fxa_auth_state, undefined);
+                });
             });
-        },
-        fail
-    );
-});
+        });
 
-test('no request is made if data is present in body', function(done, fail) {
-    var settings = {
-        api_cdn_whitelist: {},
-        switches: []
-    };
-    var body_attributes = {
-        settings: {
-            'fxa_auth_url': 'dummy_fxa_auth_url',
-            'fxa_auth_state': 'dummy_fxa_auth_state'
-        },
-        'waffle-switches': ['switch1', 'switch2']
-    };
-    mock(
-        'site_config',
-        {
-            requests: {get: function(url) { fail('We tried to make a request to ' + url); return defer.Deferred(); }},
-            settings: settings,
-            z: {
-                body: {
-                    data: function(key) {
-                        return body_attributes[key];
-                    }
-                },
-                win: {
-                    on: function() {}
-                }
-            }
-        },
-        function(siteConfig) {
-            siteConfig.update_fxa_url_client_id = function() {};
-            siteConfig.promise.then(function() {
-                eq_(settings.fxa_auth_url, 'dummy_fxa_auth_url');
-                eq_(settings.fxa_auth_state, 'dummy_fxa_auth_state');
-                feq_(settings.switches, ['switch1', 'switch2']);
-                done();
+        it('no request is made if data is present in body', function() {
+            withSettings({
+                api_cdn_whitelist: {},
+                switches: []
+            }, function() {
+                var body_attributes = {
+                    settings: {
+                        'fxa_auth_url': 'dummy_fxa_auth_url',
+                        'fxa_auth_state': 'dummy_fxa_auth_state'
+                    },
+                    'waffle-switches': ['switch1', 'switch2']
+                };
+                sinon.stub(requests, 'get', function(url) {
+                    fail('We tried to make a request to ' + url);
+                    return defer.Deferred();
+                });
+                sinon.stub(z.body, 'data', function(key) {
+                    return body_attributes[key];
+                });
+                sinon.stub(z.win, 'on', function() {});
+                sinon.stub(siteConfig, 'update_fxa_url_client_id').returns(null);
+                siteConfig.fetch().then(function() {
+                    eq_(settings.fxa_auth_url, 'dummy_fxa_auth_url');
+                    eq_(settings.fxa_auth_state, 'dummy_fxa_auth_state');
+                    feq_(settings.switches, ['switch1', 'switch2']);
+                });
             });
-        },
-        fail
-    );
-});
+        });
 
-test('sets fxa client id localhost', function(done, fail) {
-    mock('site_config', {},
-        function(siteConfig) {
+        it('sets fxa client id localhost', function() {
             var url = 'http://ngokevin.com?client_id=abc123&auth_state=def456';
             var newUrl = siteConfig.update_fxa_url_client_id(url, 'http://localhost:8679');
             eq_(newUrl,
                 'http://ngokevin.com?auth_state=def456&client_id=049d4b105daa1cb9');
-            done();
-        },
-        fail
-    );
-});
+        });
 
-test('does not change client id', function(done, fail) {
-    mock('site_config', {},
-        function(siteConfig) {
+        it('does not change client id', function() {
             var url = 'http://ngokevin.com?client_id=abc123&auth_state=def456';
             var newUrl = siteConfig.update_fxa_url_client_id(url, 'http://somehost:8679');
             eq_(newUrl, url);
-            done();
-        },
-        fail
-    );
-});
+        });
 
-})();
-*/
+    });
+});
