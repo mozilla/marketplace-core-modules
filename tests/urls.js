@@ -1,9 +1,4 @@
-define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], function(a, api_args, api_endpoints, urls, user) {
-    var eq_ = a.eq_;
-    var contains = a.contains;
-    var disincludes = a.disincludes;
-    var mock = a.mock;
-
+define('tests/urls', ['api_args', 'api_endpoints', 'urls', 'user'], function(api_args, api_endpoints, urls, user) {
     function mock_routes(routes, runner, fail) {
         var temp = window.routes;
         window.routes = routes;
@@ -21,8 +16,8 @@ define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], fu
                 {pattern: '^/$', view_name: 'homepage'},
                 {pattern: '^/app/(.+)$', view_name: 'app'}
             ], function() {
-                eq_(urls.reverse('homepage'), '/');
-                eq_(urls.reverse('app', ['slug']), '/app/slug');
+                assert.equal(urls.reverse('homepage'), '/');
+                assert.equal(urls.reverse('app', ['slug']), '/app/slug');
                 done();
             }, fail);
         });
@@ -60,7 +55,7 @@ define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], fu
                 {pattern: '^/apps/([0-9]+)/reviews/([0-9]+)$', view_name: 'two_args'},
             ], function() {
                 var reversed = urls.reverse('two_args', [10, 20]);
-                eq_('/apps/10/reviews/20', reversed);
+                assert.equal('/apps/10/reviews/20', reversed);
                 done();
             }, fail);
         });
@@ -79,7 +74,7 @@ define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], fu
                 api_cdn_whitelist: {},
             }, function() {
                 var homepage_url = urls.api.url('homepage');
-                eq_(homepage_url.substr(0, 17), 'api:/foo/homepage');
+                assert.equal(homepage_url.substr(0, 17), 'api:/foo/homepage');
             });
         });
 
@@ -95,15 +90,15 @@ define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], fu
                 var homepage_url, homepage_base_url = urls.api.base.url('homepage');
 
                 homepage_url = homepage_base_url;
-                eq_(homepage_url, 'api:/foo/homepage');
+                assert.equal(homepage_url, 'api:/foo/homepage');
 
                 homepage_url = urls.api.url('homepage');
-                eq_(homepage_url, urls.api.sign(homepage_base_url));
-                contains(homepage_url, '_user=mytoken');
+                assert.equal(homepage_url, urls.api.sign(homepage_base_url));
+                assert.include(homepage_url, '_user=mytoken');
 
                 homepage_url = urls.api.unsigned.url('homepage');
-                eq_(homepage_url, urls.api.unsign(homepage_base_url));
-                disincludes(homepage_url, '_user=mytoken');
+                assert.equal(homepage_url, urls.api.unsign(homepage_base_url));
+                assert.notInclude(homepage_url, '_user=mytoken');
             });
         });
 
@@ -115,8 +110,8 @@ define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], fu
                 api_param_blacklist: ['region']
             }, function() {
                 var homepage_url = urls.api.url('homepage');
-                eq_(homepage_url.substr(0, 17), 'api:/foo/homepage');
-                disincludes(homepage_url, 'region=');
+                assert.equal(homepage_url.substr(0, 17), 'api:/foo/homepage');
+                assert.notInclude(homepage_url, 'region=');
             });
         });
 
@@ -133,10 +128,10 @@ define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], fu
             }, function() {
                 urls.set_cdn_url();
                 var homepage_url = urls.api.url('homepage');
-                eq_(homepage_url.substr(0, 21), 'api:/api/v1/homepage/');
+                assert.equal(homepage_url.substr(0, 21), 'api:/api/v1/homepage/');
 
                 var search_url = urls.api.url('search');
-                eq_(search_url.substr(0, 51),
+                assert.equal(search_url.substr(0, 51),
                     'http://cdn.so.fast.omg.org/api/v1/fireplace/search/');
             });
         });
@@ -158,8 +153,8 @@ define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], fu
                 api_cdn_whitelist: {}
             }, function() {
                 var homepage_url = urls.api.params('homepage', {q: 'poop'});
-                eq_(homepage_url.substr(0, 13), 'api:/foo/asdf');
-                contains(homepage_url, 'q=poop');
+                assert.equal(homepage_url.substr(0, 13), 'api:/foo/asdf');
+                assert.include(homepage_url, 'q=poop');
             });
         });
 
@@ -181,23 +176,23 @@ define('tests/urls', ['assert', 'api_args', 'api_endpoints', 'urls', 'user'], fu
                 api_cdn_whitelist: {}
             }, function() {
                 var homepage_url = urls.api.params('homepage', {q: 'poop'});
-                eq_(homepage_url.substr(0, 13), 'api:/foo/asdf');
-                contains(homepage_url, 'q=poop');
-                disincludes(homepage_url, 'device');
+                assert.equal(homepage_url.substr(0, 13), 'api:/foo/asdf');
+                assert.include(homepage_url, 'q=poop');
+                assert.notInclude(homepage_url, 'device');
 
                 device = null;
                 homepage_url = urls.api.params('homepage', {q: 'poop'});
-                disincludes(homepage_url, 'device');
+                assert.notInclude(homepage_url, 'device');
 
                 device = 'customdevice';
                 homepage_url = urls.api.params('homepage', {q: 'poop'});
-                contains(homepage_url, 'device=customdevice');
+                assert.include(homepage_url, 'device=customdevice');
 
                 dev = 'customdev';
                 device = 'customdevice';
                 homepage_url = urls.api.params('homepage', {q: 'poop'});
-                contains(homepage_url, 'device=customdevice');
-                contains(homepage_url, 'dev=customdev');
+                assert.include(homepage_url, 'device=customdevice');
+                assert.include(homepage_url, 'dev=customdev');
             });
         });
     });

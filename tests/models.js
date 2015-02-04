@@ -1,9 +1,4 @@
-define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], function(a, _, cache, models, requests) {
-    var assert = a.assert;
-    var eq_ = a.eq_;
-    var eeq_ = a.eeq_;
-    var mock = a.mock;
-
+define('tests/models', ['underscore', 'cache', 'models', 'requests'], function(_, cache, models, requests) {
     describe('models', function() {
         this.afterEach(function() {
             withSettings({model_prototypes: {foo: 'id'}}, function() {
@@ -43,16 +38,16 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                     val: 'abc'
                 });
 
-                eq_(d1.lookup(1).val, 'foo');
-                eq_(d2.lookup(1).val, 'bar');
-                eq_(d2.lookup(2).val, 'abc');
+                assert.equal(d1.lookup(1).val, 'foo');
+                assert.equal(d2.lookup(1).val, 'bar');
+                assert.equal(d2.lookup(2).val, 'abc');
 
                 d1.purge();
                 d2.purge();
 
-                eeq_(d1.lookup(1), undefined);
-                eeq_(d2.lookup(1), undefined);
-                eeq_(d2.lookup(2), undefined);
+                assert.strictEqual(d1.lookup(1), undefined);
+                assert.strictEqual(d2.lookup(1), undefined);
+                assert.strictEqual(d2.lookup(2), undefined);
             });
         });
 
@@ -68,11 +63,11 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                     val: 'foo'
                 });
 
-                eq_(d1.lookup(1).val, 'foo');
+                assert.equal(d1.lookup(1).val, 'foo');
                 d1.del(2);
-                eq_(d1.lookup(1).val, 'foo');
+                assert.equal(d1.lookup(1).val, 'foo');
                 d1.del(1);
-                eeq_(d1.lookup(1), undefined);
+                assert.strictEqual(d1.lookup(1), undefined);
             });
         });
 
@@ -88,11 +83,11 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                     val: 'foo'
                 });
 
-                eq_(d1.lookup(1).val, 'foo');
+                assert.equal(d1.lookup(1).val, 'foo');
                 d1.del('bar', 'val');
-                eq_(d1.lookup(1).val, 'foo');
+                assert.equal(d1.lookup(1).val, 'foo');
                 d1.del('foo', 'val');
-                eeq_(d1.lookup(1), undefined);
+                assert.strictEqual(d1.lookup(1), undefined);
             });
         });
 
@@ -114,7 +109,7 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 };
 
                 d1.cast(obj1);
-                eq_(d1.uncast(obj2).val, 'foo');
+                assert.equal(d1.uncast(obj2).val, 'foo');
             });
         });
 
@@ -149,8 +144,8 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                     obj3,
                     obj4
                 ]);
-                eq_(output[0].val, 'foo');
-                eq_(output[1].val, 'bar');
+                assert.equal(output[0].val, 'foo');
+                assert.equal(output[1].val, 'bar');
             });
         });
 
@@ -174,8 +169,8 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
 
                 var promise = d1.get('zip', 1);
                 promise.done(function(data) {
-                    eq_(data.val, 'foo');
-                    eeq_(promise.__cached, true);
+                    assert.equal(data.val, 'foo');
+                    assert.strictEqual(promise.__cached, true);
                     done();
                 });
             });
@@ -195,7 +190,7 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 var obj = d1.get('zip', 1);
                 console.log(JSON.stringify(obj));
 
-                eq_(obj, 'surprise! zip');
+                assert.equal(obj, 'surprise! zip');
             });
         });
 
@@ -210,7 +205,7 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
             withSettings(newSettings, function() {
                 var d1 = models('dummy');
 
-                eq_(d1.get('zip', 1, function(x) {
+                assert.equal(d1.get('zip', 1, function(x) {
                     return 'hooray! ' + x;
                 }), 'hooray! zip');
             });
@@ -235,8 +230,8 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                 });
 
                 var value = d1.lookup('bar', 'val');
-                eq_(value.id, 'foo');
-                eq_(value.val, 'bar');
+                assert.equal(value.id, 'foo');
+                assert.equal(value.val, 'bar');
             });
         });
 
@@ -254,7 +249,7 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                     val: 'foo'
                 });
 
-                eeq_(d1.lookup('not an id'), undefined);
+                assert.strictEqual(d1.lookup('not an id'), undefined);
             });
         });
 
@@ -273,7 +268,7 @@ define('tests/models', ['assert', 'underscore', 'cache', 'models', 'requests'], 
                     {id: 'def', val: 3}
                 ]);
 
-                eq_(d1.lookup('abc').val, 2);
+                assert.equal(d1.lookup('abc').val, 2);
             });
         });
     });

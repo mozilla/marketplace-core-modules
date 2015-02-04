@@ -1,4 +1,4 @@
-var allTestFiles = ['assert', 'underscore'];
+var allTestFiles = ['underscore'];
 var TEST_REGEXP = /tests\/.*\.js$/i;
 
 // Automatically clenaup sinon spies and stubs.

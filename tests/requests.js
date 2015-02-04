@@ -1,10 +1,4 @@
-define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, cache, defer, requests) {
-    var assert = a.assert;
-    var eq_ = a.eq_;
-    var feq_ = a.feq_;
-    var contains = a.contains;
-
-
+define('tests/requests', ['cache', 'defer', 'requests'], function(cache, defer, requests) {
     function mock_xhr(args) {
         var def = defer.Deferred();
         def.args = arguments;
@@ -24,11 +18,11 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
         it('requests.get', function(done, fail) {
             var def = requests.get('foo/bar');
             // Test that the URL isn't mangled before being sent to jQuery.
-            eq_(def.args[0], 'GET');
-            eq_(def.args[1], 'foo/bar');
-            eq_(def.args[2], null);
+            assert.equal(def.args[0], 'GET');
+            assert.equal(def.args[1], 'foo/bar');
+            assert.equal(def.args[2], null);
             def.done(function(data) {
-                eq_(data, 'sample data');
+                assert.equal(data, 'sample data');
                 done();
             }).fail(fail);
             def.resolve('sample data');
@@ -42,7 +36,7 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
             var def = requests.get('foo/bar');
             assert('__cached' in def);
             def.done(function(data) {
-                eq_(data, 'data to cache');
+                assert.equal(data, 'data to cache');
                 done();
             }).fail(fail);
         });
@@ -55,7 +49,7 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
             var two = requests.get('foo/bar');
             assert('__cached' in two);
             two.done(function(data) {
-                eq_(data, 'data to cache');
+                assert.equal(data, 'data to cache');
                 done();
             }).fail(fail);
         });
@@ -72,7 +66,7 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
 
         it('requests.get hook', function(done, fail) {
             requests.on('success', function(data) {
-                eq_(data, 'sample data');
+                assert.equal(data, 'sample data');
                 done();
             }).on('failure', fail);
 
@@ -82,7 +76,7 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
 
         it('requests.get fail hook', function(done, fail) {
             requests.on('failure', function(data) {
-                eq_(data, 'bad data');
+                assert.equal(data, 'bad data');
                 done();
             }).on('success', fail);
 
@@ -112,11 +106,11 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
 
             it('makes requests', function(done, fail) {
                 var def = requests[v]('foo/bar', data);
-                eq_(def.args[0], test_output[v][0]);
-                eq_(def.args[1], test_output[v][1]);
-                eq_(def.args[2], test_output[v][2]);
+                assert.equal(def.args[0], test_output[v][0]);
+                assert.equal(def.args[1], test_output[v][1]);
+                assert.equal(def.args[2], test_output[v][2]);
                 def.done(function(data) {
-                    eq_(data, 'sample data');
+                    assert.equal(data, 'sample data');
                     done();
                 }).fail(fail);
                 def.resolve('sample data');
@@ -135,7 +129,7 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
                 assert(!('__cached' in def));
 
                 def.done(function(data) {
-                    eq_(data, 'boop');
+                    assert.equal(data, 'boop');
                     done();
                 }).fail(fail);
                 def.resolve('boop');
@@ -154,7 +148,7 @@ define('tests/requests', ['assert', 'cache', 'defer', 'requests'], function(a, c
 
                     var orig_req = pool.get('test/foo');
                     var second_req = pool.get('test/foo');
-                    eq_(orig_req, second_req);  // Pools should coalesce GET requests.
+                    assert.equal(orig_req, second_req);  // Pools should coalesce GET requests.
 
                     var orig_post_req = pool.post('test/foo', {abc: 'def'});
                     var second_post_req = pool.post('test/foo', {abc: 'def'});

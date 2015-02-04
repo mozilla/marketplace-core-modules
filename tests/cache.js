@@ -1,8 +1,4 @@
-define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], function(a, _, cache, settings, user) {
-    var assert = a.assert;
-    var eq_ = a.eq_;
-    var eeq_ = a.eeq_;
-    var feq_ = a.feq_;
+define('tests/cache', ['underscore', 'cache', 'settings', 'user'], function(_, cache, settings, user) {
 
     describe('cache', function() {
         this.afterEach(function() {
@@ -15,7 +11,7 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             assert(!cache.has(key));
             cache.set(key, str);
             assert(cache.has(key));
-            eq_(cache.get(key), str);
+            assert.equal(cache.get(key), str);
             assert(cache.has(key));
             cache.bust(key);
             assert(!cache.has(key));
@@ -26,10 +22,10 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             var str = 'foobartest';
             cache.set(key, str);
             assert(cache.has(key));
-            eq_(cache.raw[key], str);
+            assert.equal(cache.raw[key], str);
             cache.bust(key);
             assert(!cache.has(key));
-            eeq_(cache.raw[key], undefined);
+            assert.strictEqual(cache.raw[key], undefined);
         });
 
         it('caches non-strings', function() {
@@ -37,7 +33,7 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             var str = 1234;
             cache.set(key, str);
             assert(cache.has(key));
-            eeq_(cache.get(key), str);
+            assert.strictEqual(cache.get(key), str);
             cache.bust(key);
             assert(!cache.has(key));
         });
@@ -49,7 +45,7 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             cache.set(key + 'abc', str);
             cache.set(key + 'bar', str);
             cache.purge();
-            eq_(_.size(cache.raw), 0);
+            assert.equal(_.size(cache.raw), 0);
             assert(!cache.has(key + 'foo'));
             assert(!cache.has(key + 'abc'));
             assert(!cache.has(key + 'bar'));
@@ -62,7 +58,7 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             cache.set(key + 'abc', str);
             cache.set(key + 'bar', str);
             cache.purge(function(k) {return k == key + 'abc';});
-            eq_(_.size(cache.raw), 2);
+            assert.equal(_.size(cache.raw), 2);
             assert(cache.has(key + 'foo'));
             assert(!cache.has(key + 'abc'));
             assert(cache.has(key + 'bar'));
@@ -88,7 +84,7 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             cache.attemptRewrite(
                 function(key) {return key.match(/rewrite/);},
                 function(value, cache_key) {
-                    eq_(cache_key, key + 'rewrite');
+                    assert.equal(cache_key, key + 'rewrite');
                     return 'not poop';
                 }
             );
@@ -96,9 +92,9 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             assert(cache.has(key + 'rewrite'));
             assert(cache.has(key + 'bar'));
 
-            eq_(cache.get(key + 'foo'), 'poop');
-            eq_(cache.get(key + 'bar'), 'poop');
-            eq_(cache.get(key + 'rewrite'), 'not poop');
+            assert.equal(cache.get(key + 'foo'), 'poop');
+            assert.equal(cache.get(key + 'bar'), 'poop');
+            assert.equal(cache.get(key + 'rewrite'), 'not poop');
 
             cache.bust(key + 'foo');
             cache.bust(key + 'bar');
@@ -138,7 +134,7 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             if (cache.get(key + 'abc') === 'rewritten') count++;
             if (cache.get(key + 'bar') === 'rewritten') count++;
 
-            eq_(count, arbitrary_limit);
+            assert.equal(count, arbitrary_limit);
 
             cache.bust(key + 'foo');
             cache.bust(key + 'bar');
@@ -158,8 +154,8 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
 
             cache.set('foo', 'bar');
             cache.set('zip', 'zap');
-            eq_(cache.get('foo'), 'BAR');
-            eq_(cache.get('zip'), 'zap');
+            assert.equal(cache.get('foo'), 'BAR');
+            assert.equal(cache.get('zip'), 'zap');
         });
 
         it('cache chained rewrite on set', function() {
@@ -179,9 +175,9 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
             cache.set('foo', 'bar');
             cache.set('fart', 'zap');
             cache.set('abc', 'def');
-            eq_(cache.get('foo'), 'BAR test');
-            eq_(cache.get('fart'), 'zap test');
-            eq_(cache.get('abc'), 'def');
+            assert.equal(cache.get('foo'), 'BAR test');
+            assert.equal(cache.get('fart'), 'zap test');
+            assert.equal(cache.get('abc'), 'def');
         });
 
         it('cache deep rewrite on set', function() {
@@ -202,10 +198,10 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
 
             assert(!cache.has('foo'));
             assert(!cache.has('fart'));
-            eq_(cache.get('abc'), 'def');
+            assert.equal(cache.get('abc'), 'def');
 
-            eq_(cache.get('foo:deep'), 'asdfbar');
-            eq_(cache.get('fart:deep'), 'asdfzap');
+            assert.equal(cache.get('foo:deep'), 'asdfbar');
+            assert.equal(cache.get('fart:deep'), 'asdfzap');
         });
 
         it('get_ttl uses offline_cache_{enabled,whitelist}', function() {
@@ -218,11 +214,11 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
                 },
             };
             withSettings(newSettings, function() {
-                eq_(cache.get_ttl('https://omg.org/api/v1/fireplace/consumer-info/'),
+                assert.equal(cache.get_ttl('https://omg.org/api/v1/fireplace/consumer-info/'),
                     60 * 60 * 1000);  // 1 hour in microseconds
-                eq_(cache.get_ttl('https://omg.org/api/v1/apps/category/'),
+                assert.equal(cache.get_ttl('https://omg.org/api/v1/apps/category/'),
                     60 * 60 * 24 * 1000);  // 1 hour in microseconds
-                eq_(cache.get_ttl('https://omg.org/api/v1/swag/yolo/foreva/'), null);
+                assert.equal(cache.get_ttl('https://omg.org/api/v1/swag/yolo/foreva/'), null);
             });
         });
 
@@ -238,19 +234,19 @@ define('tests/cache', ['assert', 'underscore', 'cache', 'settings', 'user'], fun
 
                 var signed_url = 'https://omg.org/api/v1/app/yolo/?_user=SwaggasaurusRex';
                 cache.set(signed_url, data);
-                eq_(cache.get(signed_url), data);
+                assert.equal(cache.get(signed_url), data);
 
                 var unsigned_url = 'https://omg.org/api/v1/app/swag/';
                 cache.set(unsigned_url, data);
-                eq_(cache.get(unsigned_url), data);
+                assert.equal(cache.get(unsigned_url), data);
 
-                feq_(Object.keys(cache.cache).sort(), [unsigned_url, signed_url]);
+                assert.deepEqual(Object.keys(cache.cache).sort(), [unsigned_url, signed_url]);
 
                 // Calling this should clear all cache keys whose URLs contain
                 // `_user=<token>`.
                 cache.flush_signed();
 
-                feq_(Object.keys(cache.cache), [unsigned_url]);
+                assert.deepEqual(Object.keys(cache.cache), [unsigned_url]);
             });
         });
 

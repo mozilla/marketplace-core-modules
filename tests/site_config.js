@@ -1,9 +1,4 @@
-define('tests/site_config', ['assert', 'defer', 'requests', 'settings', 'site_config', 'urls', 'z'], function(a, defer, requests, settings, siteConfig, urls, z) {
-    var eq_ = a.eq_;
-    var feq_ = a.feq_;
-    var contains = a.contains;
-    var mock = a.mock;
-
+define('tests/site_config', ['defer', 'requests', 'settings', 'site_config', 'urls', 'z'], function(defer, requests, settings, siteConfig, urls, z) {
     function mockSiteConfigRequestSuccess(data) {
         sinon.stub(requests, 'get', function(args) {
             var def = defer.Deferred();
@@ -27,8 +22,8 @@ define('tests/site_config', ['assert', 'defer', 'requests', 'settings', 'site_co
                     }
                 });
                 siteConfig.fetch().then(function() {
-                    eq_(settings.switches.length, 1);
-                    contains(settings.switches, 'dummy-switch');
+                    assert.equal(settings.switches.length, 1);
+                    assert.include(settings.switches, 'dummy-switch');
                 });
             });
         });
@@ -42,7 +37,7 @@ define('tests/site_config', ['assert', 'defer', 'requests', 'settings', 'site_co
                     }
                 });
                 siteConfig.fetch().then(function() {
-                    eq_(settings.switches.length, 0);
+                    assert.equal(settings.switches.length, 0);
                 });
             });
         });
@@ -61,8 +56,8 @@ define('tests/site_config', ['assert', 'defer', 'requests', 'settings', 'site_co
                 siteConfig.fetch().then(function() {
                     // We can't be sure of the client_id since it will change based
                     // on the URL you use to run the tests.
-                    eq_(settings.fxa_auth_url.indexOf('http://ngokevin.com?client_id='), 0);
-                    eq_(settings.fxa_auth_state, 'somemoreseolongtoken');
+                    assert.equal(settings.fxa_auth_url.indexOf('http://ngokevin.com?client_id='), 0);
+                    assert.equal(settings.fxa_auth_state, 'somemoreseolongtoken');
                 });
             });
         });
@@ -75,8 +70,8 @@ define('tests/site_config', ['assert', 'defer', 'requests', 'settings', 'site_co
                     },
                 });
                 siteConfig.fetch().then(function() {
-                    eq_(settings.fxa_auth_url, undefined);
-                    eq_(settings.fxa_auth_state, undefined);
+                    assert.equal(settings.fxa_auth_url, undefined);
+                    assert.equal(settings.fxa_auth_state, undefined);
                 });
             });
         });
@@ -103,9 +98,9 @@ define('tests/site_config', ['assert', 'defer', 'requests', 'settings', 'site_co
                 sinon.stub(z.win, 'on', function() {});
                 sinon.stub(siteConfig, 'update_fxa_url_client_id').returns(null);
                 siteConfig.fetch().then(function() {
-                    eq_(settings.fxa_auth_url, 'dummy_fxa_auth_url');
-                    eq_(settings.fxa_auth_state, 'dummy_fxa_auth_state');
-                    feq_(settings.switches, ['switch1', 'switch2']);
+                    assert.equal(settings.fxa_auth_url, 'dummy_fxa_auth_url');
+                    assert.equal(settings.fxa_auth_state, 'dummy_fxa_auth_state');
+                    assert.deepEqual(settings.switches, ['switch1', 'switch2']);
                 });
             });
         });
@@ -113,14 +108,14 @@ define('tests/site_config', ['assert', 'defer', 'requests', 'settings', 'site_co
         it('sets fxa client id localhost', function() {
             var url = 'http://ngokevin.com?client_id=abc123&auth_state=def456';
             var newUrl = siteConfig.update_fxa_url_client_id(url, 'http://localhost:8679');
-            eq_(newUrl,
+            assert.equal(newUrl,
                 'http://ngokevin.com?auth_state=def456&client_id=049d4b105daa1cb9');
         });
 
         it('does not change client id', function() {
             var url = 'http://ngokevin.com?client_id=abc123&auth_state=def456';
             var newUrl = siteConfig.update_fxa_url_client_id(url, 'http://somehost:8679');
-            eq_(newUrl, url);
+            assert.equal(newUrl, url);
         });
 
     });
