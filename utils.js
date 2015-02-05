@@ -205,6 +205,13 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         return rval;
     }
 
+    function lang() {
+        return (navigator.l10n && navigator.l10n.language) ||
+            navigator.language ||
+            navigator.userLanguage;
+    }
+
+
     return {
         '_pd': _pd,
         'baseurl': baseurl,
@@ -216,6 +223,7 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         'getVars': getVars,
         'initCharCount': initCharCount,
         'isSystemDateRecent': isSystemDateRecent,
+        'lang': lang,
         'openWindow': openWindow,
         'querystring': querystring,
         'slugify': slugify,
