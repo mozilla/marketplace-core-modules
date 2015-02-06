@@ -1,4 +1,8 @@
-define('router', ['underscore'], function(_) {
+define('router', [
+    'underscore',
+    'utils',
+    'views/fxa_authorize',
+], function(_, utils) {
     var apiProcessors = [];
     var exports = {
         addRoute: function(route) {
@@ -35,5 +39,21 @@ define('router', ['underscore'], function(_) {
             routes: {},
         },
     };
+
+    exports.addRoutes([
+        {'pattern': '^/fxa-authorize$', 'view_name': 'fxa_authorize'},
+    ]);
+
+    exports.api.addRoutes({
+        'fxa-login': '/api/v2/account/fxa-login/',
+        'login': '/api/v2/account/login/',
+        'logout': '/api/v2/account/logout/',
+        'site-config': '/api/v2/services/config/site/?serializer=commonplace',
+    });
+
+    exports.api.addProcessor(function(endpoint) {
+        return {lang: utils.lang()};
+    });
+
     return exports;
 });
