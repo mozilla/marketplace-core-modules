@@ -1,13 +1,19 @@
-define('tests/urls', ['api_args', 'api_endpoints', 'urls', 'user'], function(api_args, api_endpoints, urls, user) {
+define('views/homepage', [], function() {});
+define('views/app', [], function() {});
+define('views/two_args', [], function() {});
+
+define('tests/urls', ['router', 'urls', 'user', 'views/homepage', 'views/app', 'views/two_args'], function(router, urls, user) {
     function mock_routes(routes, runner, fail) {
-        var temp = window.routes;
-        window.routes = routes;
+        var temp = router.routes;
+        router.clearRoutes();
+        router.addRoutes(routes);
         try {
             runner();
         } catch(e) {
             fail(e);
         }
-        window.routes = temp;
+        router.clearRoutes();
+        router.addRoutes(temp);
     }
 
     describe('urls.reverse', function() {
@@ -63,12 +69,12 @@ define('tests/urls', ['api_args', 'api_endpoints', 'urls', 'user'], function(api
 
     describe('api.url', function() {
         this.afterEach(function() {
-            api_endpoints.clearEndpoints();
+            router.api.clearRoutes();
             urls.set_cdn_url();
         });
 
         it('gives a url', function() {
-            api_endpoints.add('homepage', '/foo/homepage');
+            router.api.addRoutes({'homepage': '/foo/homepage'});
             withSettings({
                 api_url: 'api:',
                 api_cdn_whitelist: {},
@@ -79,7 +85,7 @@ define('tests/urls', ['api_args', 'api_endpoints', 'urls', 'user'], function(api
         });
 
         it('signs URLs', function() {
-            api_endpoints.add('homepage', '/foo/homepage');
+            router.api.addRoutes({'homepage': '/foo/homepage'});
             sinon.stub(user, 'logged_in').returns(true);
             sinon.stub(user, 'get_setting').returns(null);
             sinon.stub(user, 'get_token').returns('mytoken');
@@ -103,7 +109,7 @@ define('tests/urls', ['api_args', 'api_endpoints', 'urls', 'user'], function(api
         });
 
         it('api url blacklist', function() {
-            api_endpoints.add('homepage', '/foo/homepage');
+            router.api.addRoutes({'homepage': '/foo/homepage'});
             withSettings({
                 api_cdn_whitelist: {},
                 api_url: 'api:',
@@ -116,8 +122,10 @@ define('tests/urls', ['api_args', 'api_endpoints', 'urls', 'user'], function(api
         });
 
         it('api url CDN whitelist', function() {
-            api_endpoints.add('homepage', '/api/v1/homepage/');
-            api_endpoints.add('search', '/api/v1/fireplace/search/?swag=yolo');
+            router.api.addRoutes({
+                'homepage': '/api/v1/homepage/',
+                'search': '/api/v1/fireplace/search/?swag=yolo',
+            });
             withSettings({
                 api_url: 'api:',
                 api_cdn_whitelist: {
@@ -139,12 +147,12 @@ define('tests/urls', ['api_args', 'api_endpoints', 'urls', 'user'], function(api
 
     describe('api.url.params', function() {
         this.beforeEach(function() {
-            api_endpoints.add('homepage', '/foo/asdf');
+            router.api.addRoutes({'homepage': '/foo/asdf'});
         });
 
         this.afterEach(function() {
-            api_endpoints.clearEndpoints();
-            api_args.clearProcessors();
+            router.api.clearRoutes();
+            router.api.clearProcessors();
         });
 
         it('sets query args', function() {
@@ -158,10 +166,11 @@ define('tests/urls', ['api_args', 'api_endpoints', 'urls', 'user'], function(api
             });
         });
 
-        it('uses api_args', function() {
+        it('uses api.args', function() {
+            // FIXME: This is just testing the processor I added.
             var dev;
             var device;
-            api_args.addProcessor(function(endpoint) {
+            router.api.addProcessor(function(endpoint) {
                 var params = {};
                 if (device) {
                     params.device = device;

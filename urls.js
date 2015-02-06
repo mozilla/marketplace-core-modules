@@ -1,7 +1,6 @@
 define('urls',
-    // This depends on 'routes_api' and 'routes_api_args' which are from fireplace.
-    ['api_args', 'api_endpoints', 'format', 'log', 'settings', 'user', 'utils'],
-    function(api_args, api_endpoints, format, log, settings, user, utils) {
+    ['format', 'log', 'router', 'settings', 'user', 'utils'],
+    function(format, log, router, settings, user, utils) {
 
     var console = log('urls');
 
@@ -24,8 +23,8 @@ define('urls',
     var optional_pattern = /(\(.*\)|\[.*\]|.)\?/g;
     var reverse = function(view_name, args) {
         args = args || [];
-        for (var i in routes) {
-            var route = routes[i];
+        for (var i in router.routes) {
+            var route = router.routes[i];
             if (route.view_name != view_name)
                 continue;
 
@@ -57,7 +56,7 @@ define('urls',
     function _userArgs(func) {
         return function() {
             var out = func.apply(this, arguments);
-            var args = api_args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
+            var args = router.api.args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
             if (user.logged_in()) {
                 args._user = user.get_token();
             }
@@ -69,7 +68,7 @@ define('urls',
     function _anonymousArgs(func) {
         return function() {
             var out = func.apply(this, arguments);
-            var args = api_args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
+            var args = router.api.args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
             _removeBlacklistedParams(args);
             return utils.urlparams(out, args);
         };
@@ -85,12 +84,12 @@ define('urls',
     }
 
     function api(endpoint, args, params) {
-        if (!(endpoint in api_endpoints.endpoints)) {
+        if (!(endpoint in router.api.routes)) {
             console.error('Invalid API endpoint: ' + endpoint);
             return '';
         }
 
-        var path = format.format(api_endpoints.endpoints[endpoint], args || []);
+        var path = format.format(router.api.routes[endpoint], args || []);
         var url = apiHost(path) + path;
 
         if (params) {
