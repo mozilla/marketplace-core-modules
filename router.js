@@ -1,7 +1,7 @@
 define('router', [
     'underscore',
     'utils',
-    'views/fxa_authorize',
+    // 'views/fxa_authorize',
 ], function(_, utils) {
     var apiProcessors = [];
     var exports = {
@@ -40,9 +40,9 @@ define('router', [
         },
     };
 
-    exports.addRoutes([
-        {'pattern': '^/fxa-authorize$', 'view_name': 'fxa_authorize'},
-    ]);
+    // exports.addRoutes([
+    //     {'pattern': '^/fxa-authorize$', 'view_name': 'fxa_authorize'},
+    // ]);
 
     exports.api.addRoutes({
         'fxa-login': '/api/v2/account/fxa-login/',
