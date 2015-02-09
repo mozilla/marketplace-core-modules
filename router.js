@@ -7,6 +7,7 @@ define('router', [
     var exports = {
         addRoute: function(route) {
             route.view = require('views/' + route.view_name);
+            route.regexp = new RegExp(route.pattern);
             exports.routes.push(route);
         },
         addRoutes: function(routes) {
