@@ -115,7 +115,6 @@ define('urls',
 
     function media(path) {
         var media_url = settings.media_url;
-        console.log('MEDIA_URL ' + media_url);
         // Media URL should end with trailing slash.
         if (media_url.substr(-1) !== '/') {
             media_url += '/';
