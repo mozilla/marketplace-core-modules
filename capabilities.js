@@ -65,13 +65,13 @@ define('capabilities', ['settings'], function(settings) {
 
     static_caps.nativeFxA = function() {
         return (static_caps.firefoxOS && window.location.protocol === 'app:' &&
-                navigator.userAgent.match(/rv:(\d{2})/)[1] >= 34);
+                navigator.userAgent.match(/rv:(\d{2})/)[1] >= 32);
 
     };
     static_caps.yulelogFxA = function() {
         return (static_caps.firefoxOS && window.top !== window.self &&
                 settings.switches.indexOf('native-firefox-accounts') !== -1 &&
-                navigator.userAgent.match(/rv:(\d{2})/)[1] >= 34);
+                navigator.userAgent.match(/rv:(\d{2})/)[1] >= 32);
     };
     static_caps.fallbackFxA = function() {
         return (!(static_caps.nativeFxA() || static_caps.yulelogFxA()));
