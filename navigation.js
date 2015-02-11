@@ -73,15 +73,20 @@ define('navigation',
             top = state.scrollTop;
         }
 
-        // Introduce small delay to ensure content
-        // is ready to scroll. (Bug 976466)
-        if (scrollTimer) {
-            window.clearTimeout(scrollTimer);
-        }
-        scrollTimer = window.setTimeout(function() {
-            console.log('Setting scroll to', top);
+        if (capabilities.firefoxAndroid) {
+            // Introduce small delay for Firefox for Android to ensure
+            // content is ready to scroll (bug 976466).
+            if (scrollTimer) {
+                window.clearTimeout(scrollTimer);
+            }
+            scrollTimer = window.setTimeout(function() {
+                console.log('Setting scroll to', top);
+                window.scrollTo(0, top);
+            }, 250);
+        } else {
+            // Otherwise, scroll to the top immediately.
             window.scrollTo(0, top);
-        }, 250);
+        }
 
         // Clean the path's parameters.
         // /foo/bar?foo=bar&q=blah -> /foo/bar?q=blah
