@@ -1,4 +1,7 @@
-define('tests/models', ['underscore', 'cache', 'models', 'requests'], function(_, cache, models, requests) {
+define('tests/models',
+    ['core/cache', 'core/models', 'core/requests', 'underscore'],
+    function(cache, models, requests, _) {
+
     describe('models', function() {
         this.afterEach(function() {
             withSettings({model_prototypes: {foo: 'id'}}, function() {

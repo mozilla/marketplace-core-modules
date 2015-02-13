@@ -1,4 +1,4 @@
-define('tests/navigation', ['navigation'], function(navigation) {
+define('tests/navigation', ['core/navigation'], function(navigation) {
   describe('navigation url extraction', function() {
       it('drops the src query arg', function() {
           withSettings({param_whitelist: ['q']}, function() {
