@@ -12,7 +12,7 @@ afterEach(function() {
 });
 
 function withSettings(changes, test) {
-    var settings = require('settings');
+    var settings = require('core/settings');
     var changed = {};
     Object.keys(changes).forEach(function(key) {
         // Remember if it exists so we can delete it if it doesn't.
