@@ -1,6 +1,7 @@
 define('tests/helpers',
-        ['nunjucks', 'helpers'],
-        function(nunjucks, helpers) {
+    ['core/nunjucks', 'core/helpers'],
+    function(nunjucks, helpers) {
+
     var filters = nunjucks.require('filters');
 
     describe('filters.datetime', function() {

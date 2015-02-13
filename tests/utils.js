@@ -1,4 +1,7 @@
-define('tests/utils', ['nunjucks', 'helpers', 'utils', 'log'], function(nunjucks, helpers, utils, log) {
+define('tests/utils',
+    ['core/nunjucks', 'core/helpers', 'core/utils', 'core/log'],
+    function(nunjucks, helpers, utils, log) {
+
     describe('utils', function() {
         it('String strip', function() {
             assert.equal(('  a s d  f   ').strip(), 'asdf');
