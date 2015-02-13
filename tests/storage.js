@@ -1,4 +1,7 @@
-define('tests/storage', ['underscore', 'storage'], function(_, storage) {
+define('tests/storage',
+    ['core/storage', 'underscore'],
+    function(storage, _) {
+
     describe('storage', function() {
         it('returns proper types', function(done){
             storage.setItem('number', 4);

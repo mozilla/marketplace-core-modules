@@ -1,2 +1,2 @@
 lint:
-	jshint *.js tests/*.js --exclude=nunjucks.js
+	jshint core/*.js tests/*.js --exclude=core/nunjucks.js

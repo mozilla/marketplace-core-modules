@@ -1,6 +1,6 @@
 define('tests/capabilities',
-        ['capabilities'],
-        function(capabilities) {
+    ['core/capabilities'],
+    function(capabilities) {
 
     describe('capabilities.device_platform', function() {
         it('can be firefoxos', function() {

@@ -2,22 +2,26 @@ define('views/homepage', [], function() {});
 define('views/app', [], function() {});
 define('views/two_args', [], function() {});
 
-define('tests/urls', ['router', 'urls', 'user', 'views/homepage', 'views/app', 'views/two_args'], function(router, urls, user) {
-    function mock_routes(routes, runner, fail) {
-        var temp = router.routes;
+define('tests/urls',
+    ['core/router', 'core/urls', 'core/user',
+     'views/homepage', 'views/app', 'views/two_args'],
+    function(router, urls, user) {
+
+    function mock_routes(routes, runner, done) {
+        var oldRoutes = router.routes;
         router.clearRoutes();
         router.addRoutes(routes);
         try {
             runner();
         } catch(e) {
-            fail(e);
+            done(e);
         }
         router.clearRoutes();
-        router.addRoutes(temp);
+        router.addRoutes(oldRoutes);
     }
 
     describe('urls.reverse', function() {
-        it('reverses urls', function(done, fail) {
+        it('reverses urls', function(done) {
             mock_routes([
                 {pattern: '^/$', view_name: 'homepage'},
                 {pattern: '^/app/(.+)$', view_name: 'app'}
@@ -25,10 +29,10 @@ define('tests/urls', ['router', 'urls', 'user', 'views/homepage', 'views/app', '
                 assert.equal(urls.reverse('homepage'), '/');
                 assert.equal(urls.reverse('app', ['slug']), '/app/slug');
                 done();
-            }, fail);
+            }, done);
         });
 
-        it('errors with missing args', function(done, fail) {
+        it('errors with missing args', function(done) {
             mock_routes([
                 {pattern: '^/$', view_name: 'homepage'},
                 {pattern: '^/app/(.+)$', view_name: 'app'}
@@ -38,11 +42,11 @@ define('tests/urls', ['router', 'urls', 'user', 'views/homepage', 'views/app', '
                 } catch(e) {
                     return done();
                 }
-                fail('reverse() did not throw exception');
-            }, fail);
+                done(new Error('reverse() did not throw exception'));
+            }, done);
         });
 
-        it('errors with too many args', function(done, fail) {
+        it('errors with too many args', function(done) {
             mock_routes([
                 {pattern: '^/$', view_name: 'homepage'},
                 {pattern: '^/app/(.+)$', view_name: 'app'}
@@ -52,25 +56,24 @@ define('tests/urls', ['router', 'urls', 'user', 'views/homepage', 'views/app', '
                 } catch(e) {
                     return done();
                 }
-                fail('reverse() did not throw exception');
-            }, fail);
+                done(new Error('reverse() did not throw exception'));
+            }, done);
         });
 
-        it('can have multiple args', function(done, fail) {
+        it('can have multiple args', function(done) {
             mock_routes([
                 {pattern: '^/apps/([0-9]+)/reviews/([0-9]+)$', view_name: 'two_args'},
             ], function() {
                 var reversed = urls.reverse('two_args', [10, 20]);
                 assert.equal('/apps/10/reviews/20', reversed);
                 done();
-            }, fail);
+            }, done);
         });
     });
 
-    describe('api.url', function() {
+    describe('urls.api.url', function() {
         this.afterEach(function() {
             router.api.clearRoutes();
-            urls.set_cdn_url();
         });
 
         it('gives a url', function() {
@@ -134,7 +137,6 @@ define('tests/urls', ['router', 'urls', 'user', 'views/homepage', 'views/app', '
                 },
                 media_url: 'http://cdn.so.fast.omg.org'
             }, function() {
-                urls.set_cdn_url();
                 var homepage_url = urls.api.url('homepage');
                 assert.equal(homepage_url.substr(0, 21), 'api:/api/v1/homepage/');
 
@@ -145,7 +147,7 @@ define('tests/urls', ['router', 'urls', 'user', 'views/homepage', 'views/app', '
         });
     });
 
-    describe('api.url.params', function() {
+    describe('urls.api.url.params', function() {
         this.beforeEach(function() {
             router.api.addRoutes({'homepage': '/foo/asdf'});
         });
