@@ -1,4 +1,4 @@
-define('tests/l10n', ['l10n'], function(eltenen) {
+define('tests/l10n', ['core/l10n'], function(eltenen) {
 
     function MockNavigator(strings, pluralizer) {
         this.l10n = {
