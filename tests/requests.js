@@ -1,4 +1,7 @@
-define('tests/requests', ['cache', 'defer', 'requests'], function(cache, defer, requests) {
+define('tests/requests',
+    ['core/cache', 'core/defer', 'core/requests'],
+    function(cache, defer, requests) {
+
     function mock_xhr(args) {
         var def = defer.Deferred();
         def.args = arguments;

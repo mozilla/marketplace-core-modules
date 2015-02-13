@@ -19,20 +19,9 @@ module.exports = function(config) {
             'test-main.js',
             'bower_components/jquery/jquery.js',
             'bower_components/underscore/underscore.js',
-            {pattern: '*.js', included: false},
-            {pattern: 'views/*.js', included: false},
-            // Manually include the test files until they all pass.
-            {pattern: 'tests/cache.js', included: false},
-            {pattern: 'tests/capabilities.js', included: false},
-            {pattern: 'tests/helpers.js', included: false},
-            {pattern: 'tests/l10n.js', included: false},
-            {pattern: 'tests/models.js', included: false},
-            {pattern: 'tests/navigation.js', included: false},
-            {pattern: 'tests/requests.js', included: false},
-            {pattern: 'tests/site_config.js', included: false},
-            {pattern: 'tests/storage.js', included: false},
-            {pattern: 'tests/urls.js', included: false},
-            {pattern: 'tests/utils.js', included: false},
+            {pattern: 'core/*.js', included: false},
+            {pattern: 'core/views/*.js', included: false},
+            {pattern: 'tests/*.js', included: false},
         ],
 
 
