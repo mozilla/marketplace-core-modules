@@ -1,4 +1,6 @@
-define('tests/cache', ['underscore', 'cache', 'settings', 'user'], function(_, cache, settings, user) {
+define('tests/cache',
+    ['core/cache', 'core/settings', 'core/user', 'underscore'],
+    function(cache, settings, user, _) {
 
     describe('cache', function() {
         this.afterEach(function() {

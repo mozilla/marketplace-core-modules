@@ -2,7 +2,11 @@ define('views/homepage', [], function() {});
 define('views/app', [], function() {});
 define('views/two_args', [], function() {});
 
-define('tests/urls', ['router', 'urls', 'user', 'views/homepage', 'views/app', 'views/two_args'], function(router, urls, user) {
+define('tests/urls',
+    ['core/router', 'core/urls', 'core/user',
+     'views/homepage', 'views/app', 'views/two_args'],
+    function(router, urls, user) {
+
     function mock_routes(routes, runner, fail) {
         var temp = router.routes;
         router.clearRoutes();
