@@ -20,7 +20,10 @@ define('builder',
     }
 
     function render(template, context, env) {
-        return (env || nunjucks.env).render(template, context || {});
+        z.page.trigger('builder--pre-render');
+        var result = (env || nunjucks.env).render(template, context || {});
+        z.page.trigger('builder--post-render');
+        return result;
     }
 
     var error_template = render(settings.fragment_error_template);
