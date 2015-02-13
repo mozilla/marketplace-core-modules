@@ -19,8 +19,8 @@ module.exports = function(config) {
             'test-main.js',
             'bower_components/jquery/jquery.js',
             'bower_components/underscore/underscore.js',
-            {pattern: '*.js', included: false},
-            {pattern: 'views/*.js', included: false},
+            {pattern: 'core/*.js', included: false},
+            {pattern: 'core/views/*.js', included: false},
             {pattern: 'tests/*.js', included: false},
         ],
 
@@ -39,7 +39,7 @@ module.exports = function(config) {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['progress'],
+        reporters: ['mocha'],
 
 
         // web server port
