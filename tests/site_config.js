@@ -1,4 +1,8 @@
-define('tests/site_config', ['defer', 'requests', 'settings', 'site_config', 'urls', 'z'], function(defer, requests, settings, siteConfig, urls, z) {
+define('tests/site_config',
+    ['core/defer', 'core/requests', 'core/settings', 'core/site_config',
+     'core/urls', 'core/z'],
+    function(defer, requests, settings, siteConfig, urls, z) {
+
     function mockSiteConfigRequestSuccess(data) {
         sinon.stub(requests, 'get', function(args) {
             var def = defer.Deferred();
