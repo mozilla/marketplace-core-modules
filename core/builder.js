@@ -6,7 +6,7 @@
 define('core/builder',
     ['core/log', 'core/nunjucks', 'core/models', 'core/requests', 'core/settings', 'core/z',
      'core/nunjucks.compat', 'jquery'],
-    function(log, nunjucks, models, requests, settings, z, $) {
+    function(log, nunjucks, models, requests, settings, z, nunjucksCompat, $) {
     'use strict';
     var logger = log('builder');
 
