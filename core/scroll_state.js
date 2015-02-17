@@ -2,8 +2,8 @@
     Handles scroll state alongside navigation.
     Scroll state has a long history which can be seen at bug 986625.
 */
-define('scroll_state',
-    ['log', 'z'],
+define('core/scroll_state',
+    ['core/log', 'core/z'],
     function(log, z) {
     var logger = log('scroll_state');
 

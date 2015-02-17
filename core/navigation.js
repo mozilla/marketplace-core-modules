@@ -1,6 +1,6 @@
 define('core/navigation',
     ['core/capabilities', 'core/l10n', 'core/log', 'core/notification',
-     'scroll_state', 'core/settings', 'core/utils', 'core/views',
+     'core/scroll_state', 'core/settings', 'core/utils', 'core/views',
      'core/z', 'underscore'],
     function(capabilities, l10n, log, notification,
              scroll_state, settings, utils, views, z, _) {
