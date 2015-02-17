@@ -1,242 +1,212 @@
-(function() {
-var a = require('assert');
-var assert = a.assert;
-var eq_ = a.eq_;
-var contains = a.contains;
-var disincludes = a.disincludes;
-var mock = a.mock;
+define('views/homepage', [], function() {});
+define('views/app', [], function() {});
+define('views/two_args', [], function() {});
 
-var urls = require('urls');
+define('tests/urls',
+    ['core/router', 'core/urls', 'core/user',
+     'views/homepage', 'views/app', 'views/two_args'],
+    function(router, urls, user) {
 
-function mock_routes(routes, runner, fail) {
-    var temp = window.routes;
-    window.routes = routes;
-    try {
-        runner();
-    } catch(e) {
-        fail(e);
+    function mock_routes(routes, runner, fail) {
+        var temp = router.routes;
+        router.clearRoutes();
+        router.addRoutes(routes);
+        try {
+            runner();
+        } catch(e) {
+            fail(e);
+        }
+        router.clearRoutes();
+        router.addRoutes(temp);
     }
-    window.routes = temp;
-}
 
-test('reverse', function(done, fail) {
-    mock_routes([
-        {pattern: '^/$', view_name: 'homepage'},
-        {pattern: '^/app/(.+)$', view_name: 'app'}
-    ], function() {
-        var reverse = urls.reverse;
-        eq_(reverse('homepage'), '/');
-        eq_(reverse('app', ['slug']), '/app/slug');
-        done();
-    }, fail);
-});
+    describe('urls.reverse', function() {
+        it('reverses urls', function(done, fail) {
+            mock_routes([
+                {pattern: '^/$', view_name: 'homepage'},
+                {pattern: '^/app/(.+)$', view_name: 'app'}
+            ], function() {
+                assert.equal(urls.reverse('homepage'), '/');
+                assert.equal(urls.reverse('app', ['slug']), '/app/slug');
+                done();
+            }, fail);
+        });
 
-test('reverse missing args', function(done, fail) {
-    mock_routes([
-        {pattern: '^/$', view_name: 'homepage'},
-        {pattern: '^/app/(.+)$', view_name: 'app'}
-    ], function() {
-        var reverse = urls.reverse;
-        try {
-            reverse('app', []);
-        } catch(e) {
-            return done();
-        }
-        fail('reverse() did not throw exception');
-    }, fail);
-});
+        it('errors with missing args', function(done, fail) {
+            mock_routes([
+                {pattern: '^/$', view_name: 'homepage'},
+                {pattern: '^/app/(.+)$', view_name: 'app'}
+            ], function() {
+                try {
+                    urls.reverse('app', []);
+                } catch(e) {
+                    return done();
+                }
+                fail('reverse() did not throw exception');
+            }, fail);
+        });
 
-test('reverse too many args', function(done, fail) {
-    mock_routes([
-        {pattern: '^/$', view_name: 'homepage'},
-        {pattern: '^/app/(.+)$', view_name: 'app'}
-    ], function() {
-        var reverse = urls.reverse;
-        try {
-            reverse('app', ['foo', 'bar']);
-        } catch(e) {
-            return done();
-        }
-        fail('reverse() did not throw exception');
-    }, fail);
-});
+        it('errors with too many args', function(done, fail) {
+            mock_routes([
+                {pattern: '^/$', view_name: 'homepage'},
+                {pattern: '^/app/(.+)$', view_name: 'app'}
+            ], function() {
+                try {
+                    urls.reverse('app', ['foo', 'bar']);
+                } catch(e) {
+                    return done();
+                }
+                fail('reverse() did not throw exception');
+            }, fail);
+        });
 
-test('reverse multiple args', function(done, fail) {
-    mock_routes([
-        {pattern: '^/apps/([0-9]+)/reviews/([0-9]+)$', view_name: 'two_args'},
-    ], function() {
-        var reversed = urls.reverse('two_args', [10, 20]);
-        eq_('/apps/10/reviews/20', reversed);
-        done();
-    }, fail);
-});
+        it('can have multiple args', function(done, fail) {
+            mock_routes([
+                {pattern: '^/apps/([0-9]+)/reviews/([0-9]+)$', view_name: 'two_args'},
+            ], function() {
+                var reversed = urls.reverse('two_args', [10, 20]);
+                assert.equal('/apps/10/reviews/20', reversed);
+                done();
+            }, fail);
+        });
+    });
 
-test('api url', function(done, fail) {
-    mock(
-        'urls',
-        {
-            api_args: function(url) { return {};},
-            routes_api: {'homepage': '/foo/homepage'},
-            settings: {
+    describe('api.url', function() {
+        this.afterEach(function() {
+            router.api.clearRoutes();
+            urls.set_cdn_url();
+        });
+
+        it('gives a url', function() {
+            router.api.addRoutes({'homepage': '/foo/homepage'});
+            withSettings({
                 api_url: 'api:',
                 api_cdn_whitelist: {},
-            }
-        }, function(urls) {
-            var homepage_url = urls.api.url('homepage');
-            eq_(homepage_url.substr(0, 17), 'api:/foo/homepage');
-            done();
-        },
-        fail
-    );
-});
+            }, function() {
+                var homepage_url = urls.api.url('homepage');
+                assert.equal(homepage_url.substr(0, 17), 'api:/foo/homepage');
+            });
+        });
 
-test('api url signage', function(done, fail) {
-    mock(
-        'urls',
-        {
-            api_args: function(url) { return {};},
-            routes_api: {'homepage': '/foo/homepage'},
-            settings: {
+        it('signs URLs', function() {
+            router.api.addRoutes({'homepage': '/foo/homepage'});
+            sinon.stub(user, 'logged_in').returns(true);
+            sinon.stub(user, 'get_setting').returns(null);
+            sinon.stub(user, 'get_token').returns('mytoken');
+            withSettings({
                 api_url: 'api:',
                 api_cdn_whitelist: {}
-            },
-            user: {
-                logged_in: function() { return true; },
-                get_setting: function(x) {},
-                get_token: function() { return 'mytoken';}
-            }
-        }, function(urls) {
-            var homepage_url, homepage_base_url = urls.api.base.url('homepage');
+            }, function() {
+                var homepage_url, homepage_base_url = urls.api.base.url('homepage');
 
-            homepage_url = homepage_base_url;
-            eq_(homepage_url, 'api:/foo/homepage');
+                homepage_url = homepage_base_url;
+                assert.equal(homepage_url, 'api:/foo/homepage');
 
-            homepage_url = urls.api.url('homepage');
-            eq_(homepage_url, urls.api.sign(homepage_base_url));
-            contains(homepage_url, '_user=mytoken');
+                homepage_url = urls.api.url('homepage');
+                assert.equal(homepage_url, urls.api.sign(homepage_base_url));
+                assert.include(homepage_url, '_user=mytoken');
 
-            homepage_url = urls.api.unsigned.url('homepage');
-            eq_(homepage_url, urls.api.unsign(homepage_base_url));
-            disincludes(homepage_url, '_user=mytoken');
-            done();
-        },
-        fail
-    );
-});
+                homepage_url = urls.api.unsigned.url('homepage');
+                assert.equal(homepage_url, urls.api.unsign(homepage_base_url));
+                assert.notInclude(homepage_url, '_user=mytoken');
+            });
+        });
 
-test('api url blacklist', function(done, fail) {
-    mock(
-        'urls',
-        {
-            api_args: function(url) { return {};},
-            routes_api: {'homepage': '/foo/homepage'},
-            settings: {
+        it('api url blacklist', function() {
+            router.api.addRoutes({'homepage': '/foo/homepage'});
+            withSettings({
                 api_cdn_whitelist: {},
                 api_url: 'api:',
                 api_param_blacklist: ['region']
-            }
-        }, function(urls) {
-            var homepage_url = urls.api.url('homepage');
-            eq_(homepage_url.substr(0, 17), 'api:/foo/homepage');
-            disincludes(homepage_url, 'region=');
-            done();
-        },
-        fail
-    );
-});
+            }, function() {
+                var homepage_url = urls.api.url('homepage');
+                assert.equal(homepage_url.substr(0, 17), 'api:/foo/homepage');
+                assert.notInclude(homepage_url, 'region=');
+            });
+        });
 
-test('api url CDN whitelist', function(done, fail) {
-    mock(
-        'urls',
-        {
-            routes_api: {
+        it('api url CDN whitelist', function() {
+            router.api.addRoutes({
                 'homepage': '/api/v1/homepage/',
-                'search': '/api/v1/fireplace/search/?swag=yolo'
-            },
-            settings: {
+                'search': '/api/v1/fireplace/search/?swag=yolo',
+            });
+            withSettings({
                 api_url: 'api:',
                 api_cdn_whitelist: {
                     '/api/v1/fireplace/search/': 60,  // 1 minute
                     '/api/v1/fireplace/search/featured/': 60 * 2,  // 2 minutes
                 },
                 media_url: 'http://cdn.so.fast.omg.org'
-            }
-        }, function(urls) {
-            var homepage_url = urls.api.url('homepage');
-            eq_(homepage_url.substr(0, 21), 'api:/api/v1/homepage/');
+            }, function() {
+                urls.set_cdn_url();
+                var homepage_url = urls.api.url('homepage');
+                assert.equal(homepage_url.substr(0, 21), 'api:/api/v1/homepage/');
 
-            var search_url = urls.api.url('search');
-            eq_(search_url.substr(0, 51),
-                'http://cdn.so.fast.omg.org/api/v1/fireplace/search/');
+                var search_url = urls.api.url('search');
+                assert.equal(search_url.substr(0, 51),
+                    'http://cdn.so.fast.omg.org/api/v1/fireplace/search/');
+            });
+        });
+    });
 
-            done();
-        },
-        fail
-    );
-});
+    describe('api.url.params', function() {
+        this.beforeEach(function() {
+            router.api.addRoutes({'homepage': '/foo/asdf'});
+        });
 
-test('api url params', function(done, fail) {
-    mock(
-        'urls',
-        {
-            routes_api: {'homepage': '/foo/asdf'},
-            settings: {
+        this.afterEach(function() {
+            router.api.clearRoutes();
+            router.api.clearProcessors();
+        });
+
+        it('sets query args', function() {
+            withSettings({
                 api_url: 'api:',
                 api_cdn_whitelist: {}
-            }
-        }, function(urls) {
-            var homepage_url = urls.api.params('homepage', {q: 'poop'});
-            eq_(homepage_url.substr(0, 13), 'api:/foo/asdf');
-            contains(homepage_url, 'q=poop');
-            done();
-        },
-        fail
-    );
-});
+            }, function() {
+                var homepage_url = urls.api.params('homepage', {q: 'poop'});
+                assert.equal(homepage_url.substr(0, 13), 'api:/foo/asdf');
+                assert.include(homepage_url, 'q=poop');
+            });
+        });
 
-test('api url params api_args', function(done, fail) {
-    var api_args = {};
-    mock(
-        'urls',
-        {
-            // Bit of a weird mock, but route_api_args directly returns a
-            // function so we have to do this.
-            routes_api_args: function() {
-                return function() {
-                    return function() {
-                        return api_args;
-                    };
-                };
-            },
-            routes_api: {'homepage': '/foo/asdf'},
-            settings: {
+        it('uses api.args', function() {
+            // FIXME: This is just testing the processor I added.
+            var dev;
+            var device;
+            router.api.addProcessor(function(endpoint) {
+                var params = {};
+                if (device) {
+                    params.device = device;
+                }
+                if (dev) {
+                    params.dev = dev;
+                }
+                return params;
+            });
+            withSettings({
                 api_url: 'api:',
                 api_cdn_whitelist: {}
-            }
-        }, function(urls) {
-            var homepage_url = urls.api.params('homepage', {q: 'poop'});
-            eq_(homepage_url.substr(0, 13), 'api:/foo/asdf');
-            contains(homepage_url, 'q=poop');
-            disincludes(homepage_url, 'device');
+            }, function() {
+                var homepage_url = urls.api.params('homepage', {q: 'poop'});
+                assert.equal(homepage_url.substr(0, 13), 'api:/foo/asdf');
+                assert.include(homepage_url, 'q=poop');
+                assert.notInclude(homepage_url, 'device');
 
-            api_args.device = null;
-            homepage_url = urls.api.params('homepage', {q: 'poop'});
-            disincludes(homepage_url, 'device');
+                device = null;
+                homepage_url = urls.api.params('homepage', {q: 'poop'});
+                assert.notInclude(homepage_url, 'device');
 
-            api_args.device = 'customdevice';
-            homepage_url = urls.api.params('homepage', {q: 'poop'});
-            contains(homepage_url, 'device=customdevice');
+                device = 'customdevice';
+                homepage_url = urls.api.params('homepage', {q: 'poop'});
+                assert.include(homepage_url, 'device=customdevice');
 
-            api_args.dev = 'customdev';
-            api_args.device = 'customdevice';
-            homepage_url = urls.api.params('homepage', {q: 'poop'});
-            contains(homepage_url, 'device=customdevice');
-            contains(homepage_url, 'dev=customdev');
-
-            done();
-        },
-        fail
-    );
+                dev = 'customdev';
+                device = 'customdevice';
+                homepage_url = urls.api.params('homepage', {q: 'poop'});
+                assert.include(homepage_url, 'device=customdevice');
+                assert.include(homepage_url, 'dev=customdev');
+            });
+        });
+    });
 });
-
-})();
