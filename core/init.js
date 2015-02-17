@@ -6,13 +6,9 @@
    Invokes the main/initialization module once it is available to kick things
    off.
 */
-define('core/init', [
-    'core/router',
-    'core/views/fxa_authorize',
-], function(router) {
-    router.addRoutes([
-        {'pattern': '^/fxa-authorize$', 'view_name': 'core/fxa_authorize'},
-    ]);
+define('core/init',
+    ['core/defer', 'core/router', 'core/utils'],
+    function(defer, router, utils) {
 
     router.api.addRoutes({
         'fxa-login': '/api/v2/account/fxa-login/',
@@ -24,4 +20,14 @@ define('core/init', [
     router.api.addProcessor(function(endpoint) {
         return {lang: utils.lang()};
     });
+
+    var done = defer.Deferred();
+    require(['core/views/fxa_authorize'], function() {
+        router.addRoutes([
+            {'pattern': '^/fxa-authorize$', 'view_name': 'core/fxa_authorize'},
+        ]);
+        done.resolve();
+    });
+
+    return {ready: done.promise()};
 });
