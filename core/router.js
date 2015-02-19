@@ -1,18 +1,29 @@
 define('core/router', [
+    'core/defer',
     'core/utils',
     'underscore',
-], function(utils, _) {
+], function(defer, utils, _) {
     var apiProcessors = [];
     var coreRegex = /^core\//;
     var exports = {
         addRoute: function(route) {
-            var module;
+            var viewRequired = false;
+            var viewLoaded = defer.Deferred();
+            var viewModule;
             if (coreRegex.test(route.view_name)) {
-                module = route.view_name.replace(coreRegex, 'core/views/');
+                viewModule = route.view_name.replace(coreRegex, 'core/views/');
             } else {
-                module = 'views/' + route.view_name;
+                viewModule = 'views/' + route.view_name;
             }
-            route.view = require(module);
+            route.view = function() {
+                if (!viewRequired) {
+                    viewRequired = true;
+                    require([viewModule], function(view) {
+                        viewLoaded.resolve(view);
+                    });
+                }
+                return viewLoaded.promise();
+            };
             route.regexp = new RegExp(route.pattern);
             exports.routes.push(route);
         },

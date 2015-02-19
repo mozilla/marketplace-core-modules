@@ -1,6 +1,10 @@
 define('core/init',
-    ['core/defer', 'core/router', 'core/utils'],
-    function(defer, router, utils) {
+    ['core/router', 'core/utils'],
+    function(router, utils) {
+
+    router.addRoutes([
+        {'pattern': '^/fxa-authorize$', 'view_name': 'core/fxa_authorize'},
+    ]);
 
     router.api.addRoutes({
         'fxa-login': '/api/v2/account/fxa-login/',
@@ -12,14 +16,4 @@ define('core/init',
     router.api.addProcessor(function(endpoint) {
         return {lang: utils.lang()};
     });
-
-    var done = defer.Deferred();
-    require(['core/views/fxa_authorize'], function() {
-        router.addRoutes([
-            {'pattern': '^/fxa-authorize$', 'view_name': 'core/fxa_authorize'},
-        ]);
-        done.resolve();
-    });
-
-    return {ready: done.promise()};
 });
