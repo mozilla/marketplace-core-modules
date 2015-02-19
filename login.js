@@ -11,6 +11,9 @@ define('login',
     var retainPopup;
     var pending_logins = [];
     var packaged_origin = "app://packaged." + window.location.host;
+    if (window.location.host === "marketplace.firefox.com") {
+        packaged_origin = "app://marketplace.firefox.com";
+    }
     function oncancel() {
         console.log('Login cancelled');
         z.page.trigger('login_cancel');
