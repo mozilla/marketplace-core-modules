@@ -26,7 +26,7 @@ define('core/builder',
         return result;
     }
 
-    var error_template = render(settings.fragment_error_template);
+    var error_template = '<h1>error</h1>';  // render(settings.fragment_error_template);
 
     function parse_and_find(snippet, selector) {
         var dom = document.implementation.createHTMLDocument('');

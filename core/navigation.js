@@ -24,19 +24,28 @@ define('core/navigation',
             return;
         }
 
-        var view = views.match(href);
-        if (view === null) {
+        var viewData = views.match(href);
+        var viewPromise = viewData[0];
+        var args = viewData[1];
+        if (viewPromise === null) {
             logger.warn('Unable to resolve route to a view');
             return;
         }
 
-        if (!view[1] && initialized) {
+        if (!args && initialized) {
             window.location.href = href;
             return;
         }
 
         logger.log('Navigation started: ', href);
 
+        // Wait for the view to load, then finish updating.
+        viewPromise.done(function(view) {
+            updateView(view, args, href, isPopping, state);
+        });
+    }
+
+    function updateView(view, args, href, isPopping, state) {
         if (isPopping) {
             z.page.trigger('navigation--pop-state', [state]);
         }
@@ -47,7 +56,7 @@ define('core/navigation',
             z.win.trigger('navigating', [isPopping]);
         }
 
-        views.build(view[0], view[1], state.params);
+        views.build(view, args, state.params);
         initialized = true;
         state.type = z.context.type;
         state.title = z.context.title;

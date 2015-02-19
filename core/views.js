@@ -1,8 +1,9 @@
 define('core/views',
-    ['core/builder', 'core/log', 'core/router', 'core/utils',
+    ['core/builder', 'core/defer', 'core/log', 'core/router', 'core/utils',
      'core/views/not_found', 'core/z', 'underscore'],
-    function(builder, log, router, utils, not_found, z, _) {
+    function(builder, defer, log, router, utils, not_found, z, _) {
     var console = log('views');
+    var not_found_loaded = defer.Deferred().resolve(not_found);
 
     function match_route(url) {
         // Returns a 2-tuple: (view, [args]) or null
@@ -33,14 +34,12 @@ define('core/views',
             var route = router.routes[i];
             if (route === undefined) continue;
 
-            // console.log('Testing route', route.regexp);
             var matches = route.regexp.exec(url);
             if (!matches)
                 continue;
 
-            // console.log('Found route: ', route.view_name);
             try {
-                return [route.view, _.rest(matches)];
+                return [route.view(), _.rest(matches)];
             } catch (e) {
                 console.error('Route matched but view not initialized!', e);
                 return null;
@@ -49,7 +48,7 @@ define('core/views',
         }
 
         console.warn('Failed to match route for ' + url);
-        return [not_found, null];
+        return [not_found_loaded, null];
     }
 
     var last_args;
