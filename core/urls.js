@@ -5,20 +5,16 @@ define('core/urls',
 
     var console = log('urls');
 
-    function set_cdn_url() {
+    function cdn_url() {
         // The CDN URL is the same as the media URL but without the `/media/` path.
         if ('media_url' in settings) {
             var a = document.createElement('a');
             a.href = settings.media_url;
-            settings.cdn_url = a.protocol + '//' + a.host;
-            console.log('Using settings.media_url: ' + settings.media_url);
-            console.log('Changed settings.cdn_url: ' + settings.cdn_url);
+            return a.protocol + '//' + a.host;
         } else {
-            settings.cdn_url = settings.api_url;
-            console.log('Changed settings.cdn_url to settings.api_url: ' + settings.api_url);
+            return settings.api_url;
         }
     }
-    set_cdn_url();
 
     var group_pattern = /\([^\)]+\)/;
     var optional_pattern = /(\(.*\)|\[.*\]|.)\?/g;
@@ -109,7 +105,7 @@ define('core/urls',
         var host = settings.api_url;
         if (settings.api_cdn_whitelist &&
             utils.baseurl(path) in settings.api_cdn_whitelist) {
-            host = settings.cdn_url;
+            host = cdn_url();
         }
         return host;
     }
@@ -145,7 +141,7 @@ define('core/urls',
                 params: apiParams
             }
         },
+        cdn_url: cdn_url,
         media: media,
-        set_cdn_url: set_cdn_url,
     };
 });

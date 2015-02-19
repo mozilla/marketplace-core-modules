@@ -74,7 +74,6 @@ define('tests/urls',
     describe('api.url', function() {
         this.afterEach(function() {
             router.api.clearRoutes();
-            urls.set_cdn_url();
         });
 
         it('gives a url', function() {
@@ -138,7 +137,6 @@ define('tests/urls',
                 },
                 media_url: 'http://cdn.so.fast.omg.org'
             }, function() {
-                urls.set_cdn_url();
                 var homepage_url = urls.api.url('homepage');
                 assert.equal(homepage_url.substr(0, 21), 'api:/api/v1/homepage/');
 
