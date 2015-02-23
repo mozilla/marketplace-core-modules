@@ -14,9 +14,12 @@ define('tests/router',
             router.clearRoutes();
         });
 
-        it('handles core view names', function() {
+        it('handles core view names', function(done) {
             router.addRoute({pattern: '^/my-view$', view_name: 'core/my_view'});
-            assert.deepEqual(router.routes[0].view, require('core/views/my_view'));
+            router.routes[0].view().done(function(view) {
+                assert.deepEqual(view, require('core/views/my_view'));
+                done();
+            });
         });
     });
 });
