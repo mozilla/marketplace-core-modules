@@ -1,6 +1,8 @@
 define('core/init',
-    ['core/router', 'core/utils'],
-    function(router, utils) {
+    ['core/helpers', 'core/navigation', 'core/polyfill', 'core/router',
+     'core/utils'],
+    function(helpers, navigation, polyfill, router,
+             utils) {
 
     router.addRoutes([
         {'pattern': '^/fxa-authorize$', 'view_name': 'core/fxa_authorize'},
