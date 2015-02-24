@@ -1,6 +1,7 @@
 define('core/views/my_view', [], function() {
     return {itsMe: 'Sure Is!'};
 });
+
 define('tests/router',
     ['core/router', 'core/views/my_view'],
     function(router) {
@@ -20,6 +21,42 @@ define('tests/router',
             router.routes[0].view().done(function(view) {
                 assert.deepEqual(view, require('core/views/my_view'));
                 done();
+            });
+        });
+    });
+
+    describe('router.api.addRoutes', function() {
+        this.beforeEach(clearRoutes);
+        this.afterEach(clearRoutes);
+
+        it('sets the routes', function() {
+            var routes = {
+                foo: 'foo',
+                bar: 'bar',
+            };
+            router.api.addRoutes(routes);
+            assert.deepEqual(router.api.routes, routes);
+        });
+
+        it('extends the already set routes', function() {
+            var routes = {
+                foo: 'foo',
+                bar: 'bar',
+            };
+
+            router.api.addRoutes({
+                foo: 'foo',
+                bar: 'bar',
+            });
+            router.api.addRoutes({
+                baz: 'baz',
+                quux: 'quux',
+            });
+            assert.deepEqual(router.api.routes, {
+                foo: 'foo',
+                bar: 'bar',
+                baz: 'baz',
+                quux: 'quux',
             });
         });
     });
