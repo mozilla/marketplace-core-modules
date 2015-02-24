@@ -7,21 +7,21 @@ define('tests/urls',
      'views/homepage', 'views/app', 'views/two_args'],
     function(router, urls, user) {
 
-    function mock_routes(routes, runner, fail) {
-        var temp = router.routes;
+    function mock_routes(routes, runner, done) {
+        var oldRoutes = router.routes;
         router.clearRoutes();
         router.addRoutes(routes);
         try {
             runner();
         } catch(e) {
-            fail(e);
+            done(e);
         }
         router.clearRoutes();
-        router.addRoutes(temp);
+        router.addRoutes(oldRoutes);
     }
 
     describe('urls.reverse', function() {
-        it('reverses urls', function(done, fail) {
+        it('reverses urls', function(done) {
             mock_routes([
                 {pattern: '^/$', view_name: 'homepage'},
                 {pattern: '^/app/(.+)$', view_name: 'app'}
@@ -29,10 +29,10 @@ define('tests/urls',
                 assert.equal(urls.reverse('homepage'), '/');
                 assert.equal(urls.reverse('app', ['slug']), '/app/slug');
                 done();
-            }, fail);
+            }, done);
         });
 
-        it('errors with missing args', function(done, fail) {
+        it('errors with missing args', function(done) {
             mock_routes([
                 {pattern: '^/$', view_name: 'homepage'},
                 {pattern: '^/app/(.+)$', view_name: 'app'}
@@ -42,11 +42,11 @@ define('tests/urls',
                 } catch(e) {
                     return done();
                 }
-                fail('reverse() did not throw exception');
-            }, fail);
+                done(new Error('reverse() did not throw exception'));
+            }, done);
         });
 
-        it('errors with too many args', function(done, fail) {
+        it('errors with too many args', function(done) {
             mock_routes([
                 {pattern: '^/$', view_name: 'homepage'},
                 {pattern: '^/app/(.+)$', view_name: 'app'}
@@ -56,22 +56,22 @@ define('tests/urls',
                 } catch(e) {
                     return done();
                 }
-                fail('reverse() did not throw exception');
-            }, fail);
+                done(new Error('reverse() did not throw exception'));
+            }, done);
         });
 
-        it('can have multiple args', function(done, fail) {
+        it('can have multiple args', function(done) {
             mock_routes([
                 {pattern: '^/apps/([0-9]+)/reviews/([0-9]+)$', view_name: 'two_args'},
             ], function() {
                 var reversed = urls.reverse('two_args', [10, 20]);
                 assert.equal('/apps/10/reviews/20', reversed);
                 done();
-            }, fail);
+            }, done);
         });
     });
 
-    describe('api.url', function() {
+    describe('urls.api.url', function() {
         this.afterEach(function() {
             router.api.clearRoutes();
         });
@@ -147,7 +147,7 @@ define('tests/urls',
         });
     });
 
-    describe('api.url.params', function() {
+    describe('urls.api.url.params', function() {
         this.beforeEach(function() {
             router.api.addRoutes({'homepage': '/foo/asdf'});
         });

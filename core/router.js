@@ -1,3 +1,28 @@
+// Register routes for the app. This module maintains view routes, API routes
+// and API args processors.
+//
+// To register the view routes:
+//
+//   router.addRoutes([
+//     {pattern: '^/path/for/route$', view_name: 'my_view'},
+//     // more routes...
+//   ]);
+//
+// To register API routes:
+//
+//   router.api.addRoutes({
+//     'products': '/products',
+//     'product': '/product/{0}',
+//     // more routes...
+//   });
+//
+// To register API args processors:
+//
+//   router.api.addProcessor(function(endpoint) {
+//     if (endpoint === 'product') {
+//       return {extra_arg: 'the-value'};
+//     }
+//   });
 define('core/router', [
     'core/defer',
     'core/utils',
