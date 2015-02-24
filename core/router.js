@@ -23,11 +23,10 @@
 //       return {extra_arg: 'the-value'};
 //     }
 //   });
-define('core/router', [
-    'core/defer',
-    'core/utils',
-    'underscore',
-], function(defer, utils, _) {
+define('core/router',
+    ['core/defer', 'core/utils', 'underscore'],
+    function(defer, utils, _) {
+
     var apiProcessors = [];
     var coreRegex = /^core\//;
     var exports = {
