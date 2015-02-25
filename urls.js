@@ -1,6 +1,6 @@
 define('urls',
-    ['format', 'log', 'routes_api', 'routes_api_args', 'settings', 'user', 'utils'],
-    function(format, log, api_endpoints, api_args, settings, user, utils) {
+    ['format', 'log', 'routes_api', 'routes_api_args', 'settings', 'utils'],
+    function(format, log, api_endpoints, api_args, settings, utils) {
 
     var console = log('urls');
 
@@ -54,9 +54,6 @@ define('urls',
         return function() {
             var out = func.apply(this, arguments);
             var args = api_args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
-            if (user.logged_in()) {
-                args._user = user.get_token();
-            }
             _removeBlacklistedParams(args);
             return utils.urlparams(out, args);
         };

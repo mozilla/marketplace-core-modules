@@ -1,6 +1,6 @@
 define('requests',
-    ['cache', 'defer', 'log', 'settings', 'utils'],
-    function(cache, defer, log, settings, utils) {
+    ['cache', 'defer', 'log', 'settings', 'user', 'utils'],
+    function(cache, defer, log, settings, user, utils) {
 
     var console = log('req');
 
@@ -78,6 +78,9 @@ define('requests',
                 content_type = 'text/plain';
             }
             xhr.setRequestHeader('Content-Type', content_type);
+        }
+        if (user.logged_in()) {
+            xhr.setRequestHeader('Authorization', 'mkt-shared-secret ' + user.get_token());
         }
         xhr.send(data || undefined);
 
