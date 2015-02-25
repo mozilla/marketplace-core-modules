@@ -1,19 +1,21 @@
 define('urls',
-    ['format', 'log', 'routes_api', 'routes_api_args', 'settings', 'user', 'utils'],
-    function(format, log, api_endpoints, api_args, settings, user, utils) {
-
-    var console = log('urls');
+    ['format', 'log', 'routes_api', 'routes_api_args', 'settings', 'user',
+     'utils'],
+    function(format, log, api_endpoints, api_args, settings, user,
+             utils) {
+    'use strict';
+    var logger = log('urls');
 
     // The CDN URL is the same as the media URL but without the `/media/` path.
     if ('media_url' in settings) {
         var a = document.createElement('a');
         a.href = settings.media_url;
         settings.cdn_url = a.protocol + '//' + a.host;
-        console.log('Using settings.media_url: ' + settings.media_url);
-        console.log('Changed settings.cdn_url: ' + settings.cdn_url);
+        logger.log('Using settings.media_url: ' + settings.media_url);
+        logger.log('Changed settings.cdn_url: ' + settings.cdn_url);
     } else {
         settings.cdn_url = settings.api_url;
-        console.log('Changed settings.cdn_url to settings.api_url: ' + settings.api_url);
+        logger.log('Changed settings.cdn_url to settings.api_url: ' + settings.api_url);
     }
 
     var group_pattern = /\([^\)]+\)/;
@@ -40,20 +42,22 @@ define('urls',
 
             // Check that we got the right number of arguments.
             if (args.length !== pos) {
-                console.error('Expected ' + pos + ' args, got ' + args.length);
-                throw new Error('Wrong number of arguments passed to reverse(). View: "' + view_name + '", Argument "' + args + '"');
+                logger.error('Expected ' + pos + ' args, got ' + args.length);
+                throw new Error('Wrong number of arguments passed to reverse(). View: "' +
+                                view_name + '", Argument "' + args + '"');
             }
 
             return format.format(url, args);
 
         }
-        console.error('Could not find the view "' + view_name + '".');
+        logger.error('Could not find the view "' + view_name + '".');
     };
 
     function _userArgs(func) {
         return function() {
             var out = func.apply(this, arguments);
-            var args = api_args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
+            // arguments[0] should always be the endpoint/URL.
+            var args = api_args(arguments[0]);
             if (user.logged_in()) {
                 args._user = user.get_token();
             }
@@ -65,7 +69,8 @@ define('urls',
     function _anonymousArgs(func) {
         return function() {
             var out = func.apply(this, arguments);
-            var args = api_args(arguments[0]);  // arguments[0] should always be the endpoint/URL.
+            // arguments[0] should always be the endpoint/URL.
+            var args = api_args(arguments[0]);
             _removeBlacklistedParams(args);
             return utils.urlparams(out, args);
         };
@@ -82,7 +87,7 @@ define('urls',
 
     function api(endpoint, args, params) {
         if (!(endpoint in api_endpoints)) {
-            console.error('Invalid API endpoint: ' + endpoint);
+            logger.error('Invalid API endpoint: ' + endpoint);
             return '';
         }
 

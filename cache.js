@@ -1,8 +1,9 @@
 define('cache',
-    ['log', 'rewriters', 'settings', 'storage', 'user', 'utils', 'underscore', 'z'],
+    ['log', 'rewriters', 'settings', 'storage', 'user', 'utils', 'underscore',
+     'z'],
     function(log, rewriters, settings, storage, user, utils, _, z) {
-
-    var console = log('cache');
+    'use strict';
+    var logger = log('cache');
 
     var cache = {};
     var cache_key = 'request_cache';
@@ -18,7 +19,8 @@ define('cache',
     function get_ttl(url) {
         // Returns TTL for an API URL in microseconds.
         var path = utils.urlparse(url).pathname;
-        if (settings.offline_cache_whitelist && path in settings.offline_cache_whitelist) {
+        if (settings.offline_cache_whitelist &&
+            path in settings.offline_cache_whitelist) {
             // Convert from seconds to microseconds.
             return settings.offline_cache_whitelist[path] * 1000;
         }
@@ -45,7 +47,7 @@ define('cache',
         // Persist only if the data has changed.
         if (!_.isEqual(storage.getItem(cache_key), cache_to_save)) {
             storage.setItem(cache_key, cache_to_save);
-            console.log('Persisting request cache');
+            logger.log('Persisting request cache');
         }
     }
 
@@ -60,7 +62,7 @@ define('cache',
         // First, we remove every signed URL from the request cache.
         Object.keys(cache).forEach(function (url) {
             if (url.indexOf('_user=' + user.get_token()) !== -1) {
-                console.log('Removing signed URL', url);
+                logger.log('Removing signed URL', url);
                 delete cache[url];
             }
         });
@@ -86,7 +88,7 @@ define('cache',
 
             // If the item is expired, remove it from the cache.
             if (!time || time + ttl <= now) {
-                console.log('Removing expired URL', url);
+                logger.log('Removing expired URL', url);
                 return delete cache[url];
             }
         });
@@ -100,6 +102,29 @@ define('cache',
 
     function get(key) {
         return cache[key];
+    }
+
+    function searchUrl(url) {
+        /*
+           Gets a key from the cache, but takes into account that query params
+           can be in different order. Useful when cache-rewriting a resource
+           URL supplied from the backend.
+
+           cache = [{'foo.bar?baz=1&quz=2': 'gotit'}]
+           cache.getUrl('foo.bar?quz=2&bar=1')
+             >> 'foo.bar?baz=1&quz=2'
+        */
+        return Object.keys(cache).filter(function(key) {
+            var splitUrl = url.split('?');
+            // Check the base.
+            if (key.indexOf(splitUrl[0]) === -1) {
+                return;
+            }
+            // Check the params.
+            var paramsA = splitUrl[1];
+            var paramsB = key.split('?')[1];
+            return _.isEqual(utils.getVars(paramsA), utils.getVars(paramsB));
+        })[0];
     }
 
     function purge(filter) {
@@ -126,7 +151,7 @@ define('cache',
     }
 
     function bust(key) {
-        console.log('Busting cache for ', key);
+        logger.log('Busting cache for ', key);
         if (key in cache) {
             delete cache[key];
         }
@@ -168,10 +193,10 @@ define('cache',
 
     function rewrite(matcher, worker, limit) {
         var count = 0;
-        console.log('Attempting cache rewrite');
+        logger.log('Attempting cache rewrite');
         for (var key in cache) {
             if (matcher(key)) {
-                console.log('Matched cache rewrite pattern for key ', key);
+                logger.log('Matched cache rewrite pattern for key ', key);
                 var rewrittenValue = worker(cache[key], key);
                 cache[key] = rewrittenValue;
 
@@ -180,7 +205,7 @@ define('cache',
                     persistent.set(key, rewrittenValue);
                 }
                 if (limit && ++count >= limit) {
-                    console.log('Cache rewrite limit hit, exiting');
+                    logger.log('Cache rewrite limit hit, exiting');
                     return;
                 }
             }
@@ -196,6 +221,7 @@ define('cache',
         flush_signed: flush_signed,
         get: get,
         get_ttl: get_ttl,
+        searchUrl: searchUrl,
         has: has,
         persist: persistent,
         purge: purge,

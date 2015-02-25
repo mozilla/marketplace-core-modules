@@ -1,5 +1,7 @@
-define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
-
+define('utils',
+    ['jquery', 'l10n', 'underscore'],
+    function($, l10n, _) {
+    'use strict';
     var ngettext = l10n.ngettext;
 
     _.extend(String.prototype, {
@@ -125,17 +127,26 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
     }
 
     function getVars(qs, excl_undefined) {
-        if (!qs) qs = location.search;
-        if (!qs || qs === '?') return {};
+        if (!qs) {
+            qs = location.search;
+        }
+        if (!qs || qs === '?') {
+            return {};
+        }
         if (qs && qs[0] == '?') {
-            qs = qs.substr(1);  // Filter off the leading ? if it's there.
+            // Filter off the leading ? if it's there.
+            qs = qs.substr(1);
         }
 
-        return _.chain(qs.split('&'))  // ['a=b', 'c=d']
-                .map(function(c) {return c.split('=').map(decodeURIComponent);}) //  [['a', 'b'], ['c', 'd']]
-                .filter(function(p) {  // [['a', 'b'], ['c', undefined]] -> [['a', 'b']]
+        // ['a=b', 'c=d']
+        return _.chain(qs.split('&'))
+                // [['a', 'b'], ['c', 'd']].
+                .map(function(c) {return c.split('=').map(decodeURIComponent);})
+                // [['a', 'b'], ['c', undefined]] -> [['a', 'b']]
+                .filter(function(p) {
                     return !!p[0] && (!excl_undefined || !_.isUndefined(p[1]));
-                }).object()  // {'a': 'b', 'c': 'd'}
+                // {'a': 'b', 'c': 'd'}
+                }).object()
                 .value();
     }
 
@@ -148,7 +159,8 @@ define('utils', ['jquery', 'l10n', 'underscore'], function($, l10n, _) {
         }
         // TODO: Make this a setting somewhere.
         default_language = default_language || 'en-US';
-        lang = lang || (window.navigator.l10n ? window.navigator.l10n.language : 'en-US');
+        lang = lang || (window.navigator.l10n ?
+                        window.navigator.l10n.language : 'en-US');
         if (lang in data) {
             return data[lang];
         }
