@@ -84,6 +84,7 @@ define('login',
         e.preventDefault();
 
         var $this = $(this);
+        $('.loading-submit').removeClass('loading-submit');
         $this.addClass('loading-submit');
         startLogin({register: $this.hasClass('register')}).always(function() {
             $this.removeClass('loading-submit').trigger('blur');
