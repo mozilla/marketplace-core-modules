@@ -1,6 +1,11 @@
-define('log', ['storage', 'utils'], function(storage, utils) {
-
-    if (!('groupCollapsed' in window.console)) {
+/*
+    Implementations and utils for for console logging.
+    Notably, it stores logs for later reference.
+*/
+define('log',
+    ['storage', 'utils'],
+    function(storage, utils) {
+    if (!window.console.groupCollapsed) {
         window.console.groupCollapsed = window.console.group = window.console.log;
         window.console.groupEnd = function() {};
     }
@@ -46,8 +51,7 @@ define('log', ['storage', 'utils'], function(storage, utils) {
 
                 // TODO: Add colorification support here for browsers that support it.
                 // *cough cough* not firefox *cough*
-
-                console[log_level].apply(console, args);
+                window.console[log_level].apply(console, args);
             };
         }
 
