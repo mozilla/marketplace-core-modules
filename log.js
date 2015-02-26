@@ -5,8 +5,10 @@
 define('log',
     ['storage', 'utils'],
     function(storage, utils) {
-    if (!window.console.groupCollapsed) {
-        window.console.groupCollapsed = window.console.group = window.console.log;
+    if (window.console.groupCollapsed === undefined) {
+        // If conslole group API not available. Use log instead.
+        window.console.groupCollapsed = window.console.log;
+        window.console.group = window.console.log;
         window.console.groupEnd = function() {};
     }
 
@@ -18,7 +20,6 @@ define('log',
     var persistent_logs = storage.getItem('persistent_logs') || {};
 
     var logger = function(type, tag, onlog) {
-
         // Give nice log prefixes:
         // > [log] This is a nice message!
         var prefix = '[' + type + ']';
@@ -49,9 +50,14 @@ define('log',
                     }
                 }
 
-                // TODO: Add colorification support here for browsers that support it.
+                if (window.console[log_level] === undefined) {
+                    // Firefox Nightly refusing the polyfill above.
+                    window.console[log_level] = window.console.log;
+                }
+
+                // TODO: Add colorification here for browsers that support it.
                 // *cough cough* not firefox *cough*
-                window.console[log_level].apply(console, args);
+                window.console[log_level].apply(window.console, args);
             };
         }
 
