@@ -1,4 +1,8 @@
-define('storage', ['settings'], function(settings) {
+define('storage',
+    ['log', 'settings', 'views'],
+    function(log, settings, views) {
+    'use strict';
+    var logger = log('storage');
 
     function FakeStorage() {
         this.store = {};
@@ -52,7 +56,17 @@ define('storage', ['settings'], function(settings) {
             ls.removeItem(mapKey(key));
         },
         setItem: function(key, value) {
-            ls.setItem(mapKey(key), JSON.stringify(value));
+            try {
+                ls.setItem(mapKey(key), JSON.stringify(value));
+            } catch (e) {
+                // Clear localStorage if the quota was reached.
+                if (e.name == 'QuotaExceededError' ||
+                    e.name == 'NS_ERROR_DOM_QUOTA_REACHED') {
+                    logger.log('Storage full, clearing');
+                    ls.clear();
+                    views.reload();
+                }
+            }
         }
     };
 });
