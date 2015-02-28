@@ -1,8 +1,7 @@
 define('storage',
-    ['log', 'settings', 'views'],
-    function(log, settings, views) {
+    ['settings'],
+    function(settings) {
     'use strict';
-    var logger = log('storage');
 
     function FakeStorage() {
         this.store = {};
@@ -62,9 +61,9 @@ define('storage',
                 // Clear localStorage if the quota was reached.
                 if (e.name == 'QuotaExceededError' ||
                     e.name == 'NS_ERROR_DOM_QUOTA_REACHED') {
-                    logger.log('Storage full, clearing');
+                    console.log('LocalStorage full, clearing and reloading');
                     ls.clear();
-                    views.reload();
+                    require('views').reload();
                 }
             }
         }
