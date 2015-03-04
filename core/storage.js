@@ -63,7 +63,7 @@ define('core/storage',
                     e.name == 'NS_ERROR_DOM_QUOTA_REACHED') {
                     console.log('LocalStorage full, clearing and reloading');
                     ls.clear();
-                    require('views').reload();
+                    require('core/views').reload();
                 }
             }
         }
