@@ -22,6 +22,6 @@ define('core/init',
             return {lang: utils.lang()};
         });
 
-        require([settings.init_module], function() {});
+        require(['main'], function() {});
     });
 });
