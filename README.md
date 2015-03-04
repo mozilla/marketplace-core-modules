@@ -16,7 +16,7 @@ in that directory!
 
 ## Updating a Module
 
-When you updating a module:
+When you update a module:
 
 - Bump the version in ```bower.json```
 - **Git tag** that version and push to Github
