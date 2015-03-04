@@ -27,7 +27,9 @@ define('core/builder',
         return result;
     }
 
-    var error_template = '<h1>error</h1>';  // render(settings.fragment_error_template);
+    function error_template() {
+        return render(settings.fragment_error_template);
+    }
 
     function parse_and_find(snippet, selector) {
         var dom = document.implementation.createHTMLDocument('');
@@ -155,7 +157,7 @@ define('core/builder',
                                 content = parse_and_find(content, extract).innerHTML;
                             } catch (e) {
                                 logger.error('Error extracting result from rendered response.');
-                                content = error_template;
+                                content = error_template();
                             }
                         }
                         return content;
@@ -246,7 +248,7 @@ define('core/builder',
                             }
                             context.ctx.response = response;
                             context.ctx.error = code;
-                            el.innerHTML = except ? except() : error_template;
+                            el.innerHTML = except ? except() : error_template();
                         }
                         trigger_fragment_load_failed({context: context,
                                                       signature: signature});
@@ -294,7 +296,7 @@ define('core/builder',
                         var fallback = signature.fallback;
                         if (fallback && fallback !== url) {
                             request = pool.get(fallback).done(done).fail(function() {
-                                done(error_template);
+                                done(error_template());
                             });
                         }
                     });
