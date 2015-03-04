@@ -1,5 +1,5 @@
 define('core/init',
-    ['settings_app', 'routes'],
+    ['routes', 'settings_app'],
     function() {
 
     require(['core/helpers', 'core/navigation', 'core/polyfill', 'core/router',
