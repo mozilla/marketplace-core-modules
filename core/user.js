@@ -1,7 +1,8 @@
 define('core/user',
     ['core/capabilities', 'core/log', 'core/settings', 'core/storage',
      'core/utils'],
-    function(capabilities, log, settings, storage, utils) {
+    function(capabilities, log, settings, storage,
+             utils) {
 
     var console = log('user');
 
@@ -13,22 +14,23 @@ define('core/user',
         'purchased': [],
         'developed': []
     };
-
     var save_to_ls = !capabilities.phantom;
 
-    if (save_to_ls) {
-        // Try to initialize items from localStorage.
-        token = storage.getItem('user');
-        user_settings = storage.getItem('settings') || {};
-        permissions = storage.getItem('permissions') || {};
+    function load_from_storage() {
+        if (save_to_ls) {
+            // Try to initialize items from localStorage.
+            token = storage.getItem('user');
+            user_settings = storage.getItem('settings') || {};
+            permissions = storage.getItem('permissions') || {};
 
-        var _stored = storage.getItem('user_apps');
-        if (_stored) {
-            apps = _stored;
+            var _stored = storage.getItem('user_apps');
+            if (_stored) {
+                apps = _stored;
+            }
+
+            log.unmention(token);
+            save_user_settings();
         }
-
-        log.unmention(token);
-        save_user_settings();
     }
 
     function clear_user_settings() {
@@ -188,6 +190,7 @@ define('core/user',
         has_developed: has_developed,
         has_installed: has_installed,
         has_purchased: has_purchased,
+        load_from_storage: load_from_storage,
         logged_in: function() {return !!token;},
         set_token: set_token,
         update_apps: update_apps,
