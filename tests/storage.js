@@ -29,7 +29,13 @@ define('tests/storage',
             done();
         });
 
-        it('can remove items', function(done){
+        it('can get and set items', function(done) {
+            storage.setItem('test', 123);
+            assert.strictEqual(storage.getItem('test'), 123);
+            done();
+        });
+
+        it('can remove items', function(done) {
             var key = 'transient';
             var value = {
                 unix: '30 definitions of regular expressions living under one roof',
