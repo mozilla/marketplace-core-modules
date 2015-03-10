@@ -48,14 +48,17 @@ require.config({
     paths: {
         jquery: 'bower_components/jquery/jquery',
         underscore: 'bower_components/underscore/underscore',
+        squire: 'bower_components/squire/src/Squire',
     },
     shim: {
         underscore: {
             exports: '_',
         },
     },
-    // Dynamically load all test files.
-    deps: allTestFiles,
-    // Kick off jasmine since it is asynchronous.
-    callback: window.__karma__.start
+});
+
+// Using this instead of `deps` and `callback` in the `require.config` seems to
+// prevent Squire from causing tests to run twice.
+require(allTestFiles, function() {
+    window.__karma__.start();
 });

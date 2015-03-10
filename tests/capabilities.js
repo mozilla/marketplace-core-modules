@@ -1,6 +1,6 @@
 define('tests/capabilities',
-    ['core/capabilities'],
-    function(capabilities) {
+    ['core/capabilities', 'squire'],
+    function(capabilities, Squire) {
 
     describe('capabilities.device_platform', function() {
         it('can be firefoxos', function() {
@@ -193,4 +193,157 @@ define('tests/capabilities',
         });
     });
 
+    describe('capabilities.webApps', function() {
+        var oldMozApps;
+
+        this.beforeEach(function() {
+            oldMozApps = navigator.mozApps;
+        });
+
+        this.afterEach(function() {
+            if (oldMozApps) {
+                navigator.mozApps = oldMozApps;
+            } else {
+                delete navigator.mozApps;
+            }
+        });
+
+        it('is true when mozApps.install is a function', function(done) {
+            navigator.mozApps = {install: function() {}};
+            new Squire().require(['core/capabilities'], function(caps) {
+                assert(caps.webApps, 'webApps should be on');
+                done();
+            });
+        });
+
+        it('is false when mozApps.install is undefined', function(done) {
+            navigator.mozApps = {};
+            new Squire().require(['core/capabilities'], function(caps) {
+                assert(!caps.webApps, 'webApps should be off');
+                done();
+            });
+        });
+
+        it('is false when mozApps is undefined', function(done) {
+            // It appears as though you can't delete this...
+            navigator.mozApps = undefined;
+            new Squire().require(['core/capabilities'], function(caps) {
+                assert(!caps.webApps, 'webApps should be off');
+                done();
+            });
+        });
+
+        it('is true when settings.mockWebApps is true', function(done) {
+            // It appears as though you can't delete this...
+            navigator.mozApps = undefined;
+            new Squire()
+            .mock('core/settings', {mockWebApps: true, switches: []})
+            .require(['core/capabilities'], function(caps) {
+                assert(caps.webApps, 'webApps should be on');
+                done();
+            });
+        });
+
+        it('changes when settings.mockWebApps changes', function(done) {
+            // It appears as though you can't delete this...
+            navigator.mozApps = undefined;
+            var settings = {mockWebApps: true, switches: []};
+            new Squire()
+            .mock('core/settings', settings)
+            .require(['core/capabilities'], function(caps) {
+                assert(caps.webApps, 'webApps should be on');
+                settings.mockWebApps = false;
+                assert(!caps.webApps, 'webApps should be off');
+                done();
+            });
+        });
+
+        it('works without Object.defineProperty', function(done) {
+            navigator.mozApps = {install: function() {}};
+            var oldDefineProperty = Object.defineProperty;
+            Object.defineProperty = undefined;
+            new Squire().require(['core/capabilities'], function(caps) {
+                assert(caps.webApps, 'webApps should be on');
+                Object.defineProperty = oldDefineProperty;
+                done();
+            });
+        });
+    });
+
+    describe('capabilities.packagedWebApps', function() {
+        var oldMozApps;
+
+        this.beforeEach(function() {
+            oldMozApps = navigator.mozApps;
+        });
+
+        this.afterEach(function() {
+            if (oldMozApps) {
+                navigator.mozApps = oldMozApps;
+            } else {
+                delete navigator.mozApps;
+            }
+        });
+
+        it('is true when mozApps.installPackage is a function', function(done) {
+            navigator.mozApps = {installPackage: function() {}};
+            new Squire().require(['core/capabilities'], function(caps) {
+                assert(caps.packagedWebApps, 'packagedWebApps should be on');
+                done();
+            });
+        });
+
+        it('is false when mozApps.installPackage is undefined', function(done) {
+            navigator.mozApps = {};
+            new Squire().require(['core/capabilities'], function(caps) {
+                assert(!caps.packagedWebApps, 'packagedWebApps should be off');
+                done();
+            });
+        });
+
+        it('is false when mozApps is undefined', function(done) {
+            // It appears as though you can't delete this...
+            navigator.mozApps = undefined;
+            new Squire().require(['core/capabilities'], function(caps) {
+                assert(!caps.packagedWebApps, 'packagedWebApps should be off');
+                done();
+            });
+        });
+
+        it('is true when settings.mockWebApps is true', function(done) {
+            // It appears as though you can't delete this...
+            navigator.mozApps = undefined;
+            new Squire()
+            .mock('core/settings', {mockWebApps: true, switches: []})
+            .require(['core/capabilities'], function(caps) {
+                assert(caps.packagedWebApps, 'packagedWebApps should be on');
+                done();
+            });
+        });
+
+        it('changes when settings.mockWebApps changes', function(done) {
+            // It appears as though you can't delete this...
+            navigator.mozApps = undefined;
+            var settings = {mockWebApps: true, switches: []};
+            new Squire()
+            .mock('core/settings', settings)
+            .require(['core/capabilities'], function(caps) {
+                assert(caps.packagedWebApps, 'packagedWebApps should be on');
+                settings.mockWebApps = false;
+                assert(!caps.packagedWebApps, 'packagedWebApps should be off');
+                done();
+            });
+        });
+
+        it('works without Object.defineProperty', function(done) {
+            navigator.mozApps = {installPackage: function() {}};
+            var oldDefineProperty = Object.defineProperty;
+            Object.defineProperty = undefined;
+            new Squire().require(['core/capabilities'], function(caps) {
+                assert(caps.packagedWebApps, 'packagedWebApps should be on');
+                Object.defineProperty = oldDefineProperty;
+                done();
+            });
+        });
+    });
 });
