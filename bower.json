@@ -10,5 +10,8 @@
   "dependencies": {
     "jquery": "2.0.2",
     "underscore": "1.4.4"
+  },
+  "devDependencies": {
+    "squire": "~0.2.0"
   }
 }

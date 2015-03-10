@@ -19,6 +19,7 @@ module.exports = function(config) {
             'test-main.js',
             'bower_components/jquery/jquery.js',
             'bower_components/underscore/underscore.js',
+            {pattern: 'bower_components/squire/src/Squire.js', included: false},
             {pattern: 'core/*.js', included: false},
             {pattern: 'core/views/*.js', included: false},
             {pattern: 'tests/*.js', included: false},
