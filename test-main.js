@@ -46,18 +46,19 @@ require.config({
     // Karma serves files under /base, the basePath from your config file.
     baseUrl: '/base',
     paths: {
-        'jquery': 'bower_components/jquery/jquery',
-        'Squire': 'bower_components/squire/src/Squire',
-        'underscore': 'bower_components/underscore/underscore'
+        jquery: 'bower_components/jquery/jquery',
+        underscore: 'bower_components/underscore/underscore',
+        squire: 'bower_components/squire/src/Squire',
     },
     shim: {
         'underscore': {
             exports: '_',
         },
-    }
+    },
 });
 
-// Prevent Squire from causing tests to run twice.
+// Using this instead of `deps` and `callback` in the `require.config` seems to
+// prevent Squire from causing tests to run twice.
 require(allTestFiles, function() {
     window.__karma__.start();
 });

@@ -48,8 +48,6 @@ define('core/capabilities', ['core/settings'], function(settings) {
         'iframed': window.top !== window.self,
         'replaceState': typeof history.replaceState === 'function',
         'chromeless': !!(window.locationbar && !window.locationbar.visible),
-        'webApps': !!(navigator.mozApps && navigator.mozApps.install),
-        'packagedWebApps': !!(navigator.mozApps && navigator.mozApps.installPackage),
         'userAgent': navigator.userAgent,
         'widescreen': function() { return safeMatchMedia('(min-width: 710px)'); },
         'firefoxAndroid': navigator.userAgent.indexOf('Firefox') !== -1 && navigator.userAgent.indexOf('Android') !== -1,
@@ -60,10 +58,29 @@ define('core/capabilities', ['core/settings'], function(settings) {
         'firefoxOS': navigator.mozApps && navigator.mozApps.installPackage &&
                      navigator.userAgent.indexOf('Android') === -1 &&
                      (navigator.userAgent.indexOf('Mobile') !== -1 || navigator.userAgent.indexOf('Tablet') !== -1),
-        'phantom': navigator.userAgent.match(/Phantom/),  // Don't use this if you can help it.
+        'phantom': navigator.userAgent.match(/(Phantom|Slimer)/),  // Don't use this if you can help it.
         'detectOS': detectOS,
         'os': detectOS(),
     };
+
+    function supportsWebApps() {
+        return settings.mockWebApps ||
+            !!(navigator.mozApps && navigator.mozApps.install);
+    }
+
+    function supportsPackagedWebApps() {
+        return settings.mockWebApps ||
+            !!(navigator.mozApps && navigator.mozApps.installPackage);
+    }
+
+    if (Object.defineProperty) {
+        Object.defineProperty(static_caps, 'webApps', {get: supportsWebApps});
+        Object.defineProperty(static_caps, 'packagedWebApps',
+                              {get: supportsPackagedWebApps});
+    } else {
+        static_caps.webApps = supportsWebApps();
+        static_caps.packagedWebApps = supportsPackagedWebApps();
+    }
 
     static_caps.nativeFxA = function() {
         return (static_caps.firefoxOS && window.location.protocol === 'app:' &&
