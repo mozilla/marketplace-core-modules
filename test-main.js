@@ -43,23 +43,19 @@ Object.keys(window.__karma__.files).forEach(function(file) {
 });
 
 require.config({
-    // Karma serves files under /base, which is the basePath from your config file
+    // Karma serves files under /base, the basePath from your config file.
     baseUrl: '/base',
-
     paths: {
         jquery: 'bower_components/jquery/jquery',
         underscore: 'bower_components/underscore/underscore',
     },
-
     shim: {
         underscore: {
             exports: '_',
         },
     },
-
-    // dynamically load all test files
+    // Dynamically load all test files.
     deps: allTestFiles,
-
-    // we have to kickoff jasmine, as it is asynchronous
+    // Kick off jasmine since it is asynchronous.
     callback: window.__karma__.start
 });

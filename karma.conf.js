@@ -21,7 +21,7 @@ module.exports = function(config) {
             'bower_components/underscore/underscore.js',
             {pattern: 'core/*.js', included: false},
             {pattern: 'core/views/*.js', included: false},
-            {pattern: 'tests/*.js', included: false},
+            {pattern: 'tests/**/*.js', included: false},
         ],
 
 
