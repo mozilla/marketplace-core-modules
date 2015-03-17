@@ -1,9 +1,7 @@
 define('core/user',
-    ['core/capabilities', 'core/log', 'core/settings', 'core/storage',
-     'core/utils'],
-    function(capabilities, log, settings, storage, utils) {
-
-    var console = log('user');
+    ['core/capabilities', 'core/log', 'core/storage', 'core/utils'],
+    function(capabilities, log, storage, utils) {
+    var logger = log('user');
 
     var token;
     var user_settings = {};
@@ -36,7 +34,7 @@ define('core/user',
     }
 
     function clear_token() {
-        console.log('Clearing user token');
+        logger.log('Clearing token');
 
         storage.removeItem('user');
         if ('email' in user_settings) {
@@ -87,7 +85,7 @@ define('core/user',
     }
 
     function set_token(new_token, new_user_settings) {
-        console.log('Setting new user token');
+        logger.log('Setting new token');
         if (!new_token) {
             return;
         }
@@ -107,10 +105,10 @@ define('core/user',
 
     function save_user_settings() {
         if (save_to_ls) {
-            console.log('Saving user_settings to localStorage');
+            logger.log('Saving settings');
             storage.setItem('settings', user_settings);
         } else {
-            console.log('user_settings not saved to localStorage');
+            logger.log('settings not saved');
         }
     }
 
@@ -118,17 +116,17 @@ define('core/user',
         if (!data) {
             return;
         }
-        console.log('Updating user settings', data);
+        logger.log('Updating settings', data);
         _.extend(user_settings, data);
         save_user_settings();
     }
 
     function save_permissions() {
         if (save_to_ls) {
-            console.log('Saving permissions to localStorage');
+            logger.log('Saving perms');
             storage.setItem('permissions', permissions);
         } else {
-            console.log('Permissions not saved to localStorage');
+            logger.log('Perms not saved');
         }
     }
 
@@ -136,7 +134,7 @@ define('core/user',
         if (!data) {
             return;
         }
-        console.log('Updating user permissions', data);
+        logger.log('Updating perms', data);
         permissions = data;
         save_permissions();
     }
@@ -145,29 +143,29 @@ define('core/user',
         if (!data) {
             return;
         }
-        console.log('Updating user apps', data);
+        logger.log('Updating apps', data);
         apps = data;
         save_apps();
     }
 
     function update_install(app_id) {
-        console.log('Adding to user apps.installed', app_id);
+        logger.log('Adding to apps.installed', app_id);
         apps.installed.push(app_id);
         save_apps();
     }
 
     function update_purchased(app_id) {
-        console.log('Adding to user apps.purchased', app_id);
+        logger.log('Adding to apps.purchased', app_id);
         apps.purchased.push(app_id);
         save_apps();
     }
 
     function save_apps() {
         if (save_to_ls) {
-            console.log('Saving user apps to localStorage');
+            logger.log('Saving apps');
             storage.setItem('user_apps', apps);
         } else {
-            console.log('User apps not saved to localStorage');
+            logger.log('Apps not saved');
         }
     }
 
