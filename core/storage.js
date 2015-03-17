@@ -3,8 +3,6 @@ define('core/storage',
     function(settings) {
     'use strict';
 
-    console.log("STORAGE INITIALISING WITH ITEM COUNT: " + localStorage.length);
-
     function FakeStorage() {
         this.store = {};
     }
