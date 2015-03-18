@@ -4,9 +4,12 @@ define('tests/init',
 
     describe('init', function() {
         it('sets up l10n', function(done) {
-            init.ready.done(function() {
-                assert.ok(window.navigator.l10n);
-                done();
+            var injector = new Squire();
+            require(['core/init'], function(init) {
+                init.ready.done(function() {
+                    assert.ok(window.navigator.l10n);
+                    done();
+                });
             });
         });
 
