@@ -60,3 +60,9 @@ require.config({
     // Kick off jasmine since it is asynchronous.
     callback: window.__karma__.start
 });
+
+// Using this instead of `deps` and `callback` in the `require.config` seems to
+// prevent Squire from causing tests to run twice.
+require(allTestFiles, function() {
+    window.__karma__.start();
+});
