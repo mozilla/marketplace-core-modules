@@ -1,4 +1,7 @@
-define('tests/l10n_init', ['core/l10n_init'], function(l10n_init) {
+define('tests/l10n_init',
+    ['core/l10n_init'],
+    function(l10n_init) {
+
     function MockDoc() {
         // Mock doc.body.getAttribute to test with different data-attrs.
         var doc = {
@@ -11,48 +14,45 @@ define('tests/l10n_init', ['core/l10n_init'], function(l10n_init) {
         return doc;
     }
 
-    afterEach(function() {
-        window.navigator.l10n = undefined;
-    });
+    describe('l10n_init.injectLocaleScript', function() {
+        beforeEach(function() {
+            document.body.setAttribute('data-media', '/base/tests/files/');
+        });
+        afterEach(function() {
+            window.navigator.l10n = undefined;
+        });
 
-    describe('l10n_init', function() {
         it('injects script tag', function() {
-            l10n_init.injectLocaleScript('de');
+            l10n_init.injectLocaleScript(null, 'de');
 
+            // Verify on the DOM.
             var scripts = document.querySelectorAll('script');
             var poScript = scripts[scripts.length - 1];
-            assert.ok(poScript.src.indexOf('/media/locales/de.js') !== -1);
+            assert.ok(poScript.src.indexOf('/base/tests/files/locales/de.js') !== -1);
         });
 
         it('injects script tag with test fixture file', function(done) {
             // Test with an actual locale file (tests/locales/es.js).
-            document.body.setAttribute('data-media', '/base/tests/files/');
-            var script = l10n_init.injectLocaleScript('es');
+            var promise = l10n_init.injectLocaleScript(null, 'es');
 
+            // Verify on the DOM.
             var scripts = document.querySelectorAll('script');
             var poScript = scripts[scripts.length - 1];
             assert.ok(poScript.src.indexOf('/base/tests/files/locales/es.js') !== -1);
 
             // When locale script loads, it should change the language.
-            script.onload = function() {
+            promise.done(function() {
                 assert.equal(window.navigator.l10n.language, 'es');
                 done();
-            };
+            });
         });
 
         it('fall back to en-US if script error', function(done) {
-            var script = l10n_init.injectLocaleScript('de');
-
-            script.onerror = (function(existingOnerror) {
-                // Don't overwrite existing onerror. Call the code's onerror,
-                // then call our test's onerror.
-                if (existingOnerror) {
-                    existingOnerror.apply(this,arguments);
-                }
+            l10n_init.injectLocaleScript(null, 'de').done(function() {
                 // When locale script 404s, it should fall back to en-US.
                 assert.equal(window.navigator.l10n.language, 'en-US');
                 done();
-            }(script.onerror));
+            });
         });
     });
 

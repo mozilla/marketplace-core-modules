@@ -1,14 +1,17 @@
 {
   "author": "Mozilla",
   "name": "marketplace-core-modules",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "ignore": [
     "bower.json",
     "LICENSE",
     "README.md"
   ],
   "dependencies": {
-    "jquery": "2.0.2",
+    "marketplace-jquery": "2.0.2",
     "underscore": "1.4.4"
+  },
+  "devDependencies": {
+    "squire": "~0.2.0"
   }
 }

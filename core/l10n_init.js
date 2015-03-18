@@ -1,22 +1,19 @@
 /*
-    A script that initializes l10n before include.js is loaded. Require this
-    before your main JS bundle.
+    A script that initializes l10n. This must be done before the consuming app
+    is initialized because we want to have l10n set up so translations load
+    correctly. A promise is exposed to be further exposed by core/init.
 
-    Injects script tag for the locale file respective of the user's language.
-    The injected script tag is a JS file that sets window.navigator.l10n with
-    a locale obj populated with a script via .po files.
-    Should be minified in the build step and copied into the project's JS root.
-
-    This file is then served by Zamboni in mkt/commonplace, looking inside the
-    project's media root.
+    - Uses the list of languages passed in by Zamboni and set on body to
+      determine whether we support that locale / have a script for that locale.
+    - Injects script tag for the locale file respective of the user's language.
+    - If locale file 404s, then it falls back to en-US.
+    - Falling back to en-US leads to trying to load en-US.js. If that fails,
+      then we manually set window.navigator.l10n.
+    - Injected script tag is a JS file that sets window.navigator.l10n with
+      a locale obj populated with a script via .po files.
+    - The promise resolves once the locale script loads (or errors).
 */
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        define([], factory);
-    } else {
-        root.l10n_init = factory();
-    }
-}(this, function() {
+define('core/l10n_init', ['core/defer'], function(defer) {
     var languages;
     var bodyLangs = document.body.getAttribute('data-languages');
     if (bodyLangs) {
@@ -29,20 +26,34 @@
             'tr', 'xh', 'zh-CN', 'zh-TW', 'zu', 'dbg'
         ];
     }
-    injectLocaleScript();
 
-    function injectLocaleScript(_testLocale) {
+    function injectLocaleScript(l10nInitialized, locale) {
         // Inject script to load locale file that populates w.navigator.1l0n.
+        // If locale script 404s, fall back to en-US.
+        l10nInitialized = l10nInitialized || defer.Deferred();
+        locale = locale || getLocale();
+
         var script = document.createElement('script');
-        script.src = getLocaleSrc(_testLocale || getLocale());
+        script.src = getLocaleSrc(locale);
+        script.onload = function() {
+            l10nInitialized.resolve(locale, script);
+        };
         script.onerror = function() {
-            // If locale file not found, then fallback English (bug 1044195).
-            window.navigator.l10n = {
-                language: 'en-US'
-            };
+            // If locale file not found, then fall back English (bug 1044195).
+            if (locale == 'en-US') {
+                // If we are falling back and it still errors, just resolve.
+                window.navigator.l10n = {
+                    language: 'en-US'
+                };
+                l10nInitialized.resolve('en-US', script);
+            } else {
+                // Fall back to en-US by trying to load the en-US locale.
+                injectLocaleScript(l10nInitialized, 'en-US');
+            }
         };
         document.body.appendChild(script);
-        return script;
+
+        return l10nInitialized;
     }
 
     function _transformLocale(locale) {
@@ -115,6 +126,6 @@
         getLocale: getLocale,
         getLocaleSrc: getLocaleSrc,
         injectLocaleScript: injectLocaleScript,
-        languages: languages
+        languages: languages,
     };
-}));
+});
