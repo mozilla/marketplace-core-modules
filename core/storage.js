@@ -1,49 +1,23 @@
-define('core/storage',
-    ['core/settings'],
-    function(settings) {
+/*
+    Interface to localStorage.
+
+    - Automatically serializes and deserializes JSON.
+    - Has handler for when localStorage gets full.
+*/
+define('core/storage', [], function() {
     'use strict';
 
-    function FakeStorage() {
-        this.store = {};
-    }
-
-    FakeStorage.prototype.getItem = function(key) {
-        return this.store[key];
-    };
-
-    FakeStorage.prototype.setItem = function(key, value) {
-        this.store[key] = value;
-    };
-
-    FakeStorage.prototype.removeItem = function(key) {
-        delete this.store[key];
-    };
-
-    FakeStorage.prototype.clear = function() {
-        this.store = {};
-    };
-
-    var ls;
-    try {
-        ls = localStorage;
-    } catch(e) {
-        ls = new FakeStorage();
-    }
-
     function mapKey(key) {
-        return settings.storage_version + '::' + key;
+        // Used to have storage versioning. Was removed since not needed.
+        return '0::' + key;
     }
-
-    // Expose storage version (which is prefixed to every key).
-    // For instance, used in Zamboni login.js.
-    ls.setItem('latestStorageVersion', settings.storage_version);
 
     return {
         clear: function() {
-            ls.clear();
+            localStorage.clear();
         },
         getItem: function(key) {
-            var value = ls.getItem(mapKey(key));
+            var value = localStorage.getItem(mapKey(key));
             // Handle nulls, maybe other stray values.
             try {
                 return JSON.parse(value);
@@ -52,17 +26,18 @@ define('core/storage',
             }
         },
         removeItem: function(key) {
-            ls.removeItem(mapKey(key));
+            localStorage.removeItem(mapKey(key));
         },
         setItem: function(key, value) {
             try {
-                ls.setItem(mapKey(key), JSON.stringify(value));
+                localStorage.setItem(mapKey(key), JSON.stringify(value));
             } catch (e) {
                 // Clear localStorage if the quota was reached.
                 if (e.name == 'QuotaExceededError' ||
                     e.name == 'NS_ERROR_DOM_QUOTA_REACHED') {
-                    console.log('LocalStorage full, clearing and reloading');
-                    ls.clear();
+                    require('core/log')('storage').log('LS full, clearing');
+                    localStorage.clear();
+                    require('core/z').doc.trigger('storage--full-cleared');
                     require('core/views').reload();
                 }
             }

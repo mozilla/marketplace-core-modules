@@ -3,7 +3,7 @@ define('tests/storage',
     function(storage, _) {
 
     describe('storage', function() {
-        it('returns proper types', function(done){
+        it('returns proper types', function(done) {
             storage.setItem('number', 4);
             assert.strictEqual(storage.getItem('number'), 4);
             storage.removeItem('number');
@@ -38,9 +38,12 @@ define('tests/storage',
         it('can remove items', function(done) {
             var key = 'transient';
             var value = {
-                unix: '30 definitions of regular expressions living under one roof',
-                windows: 'has detected the mouse has moved. Please restart your system for changes to take effect',
-                beos: 'These three are certain:/Death, taxes, and site not found./You, victim of one.'
+                unix: '30 definitions of regular expressions living under ' +
+                      'one roof',
+                windows: 'has detected the mouse has moved. Please restart ' +
+                         'your system for changes to take effect',
+                beos: 'These three are certain:/Death, taxes, and site not ' +
+                      'found./You, victim of one.'
             };
             assert.strictEqual(storage.getItem(key), null);
             storage.setItem(key, value);
