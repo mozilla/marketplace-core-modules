@@ -44,6 +44,8 @@ define('core/capabilities', ['core/settings'], function(settings) {
         'debug': document.location.href.indexOf('dbg') >= 0,
         'debug_in_page': document.location.href.indexOf('dbginpage') >= 0,
         'console': window.console && typeof window.console.log === 'function',
+        'packaged': window.location.protocol === 'app:',
+        'iframed': window.top !== window.self,
         'replaceState': typeof history.replaceState === 'function',
         'chromeless': !!(window.locationbar && !window.locationbar.visible),
         'webApps': !!(navigator.mozApps && navigator.mozApps.install),
