@@ -13,7 +13,9 @@
       a locale obj populated with a script via .po files.
     - The promise resolves once the locale script loads (or errors).
 */
-define('core/l10n_init', ['core/defer'], function(defer) {
+define('core/l10n_init',
+    ['core/defer', 'core/l10n', 'core/z'],
+    function(defer, l10n, z) {
     var languages;
     var bodyLangs = document.body.getAttribute('data-languages');
     if (bodyLangs) {
@@ -36,6 +38,8 @@ define('core/l10n_init', ['core/defer'], function(defer) {
         var script = document.createElement('script');
         script.src = getLocaleSrc(locale);
         script.onload = function() {
+            // Add body class for RTL.
+            z.body.addClass('l10n--direction-' + l10n.getDirection());
             l10nInitialized.resolve(locale, script);
         };
         script.onerror = function() {

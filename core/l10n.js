@@ -9,8 +9,10 @@
     l10n_init.js and this l10n.js module used to be one file which ended up
     being requested twice. It has since been split.
 */
-define('core/l10n', ['core/format'], function(format) {
-    var rtlList = ['ar', 'he', 'fa', 'ps', 'ur'];
+define('core/l10n',
+    ['core/format'],
+    function(format) {
+    var RTL_LIST = ['ar', 'he', 'fa', 'ps', 'ur'];
 
     function get(str, args, context) {
         context = context || navigator;
@@ -64,7 +66,7 @@ define('core/l10n', ['core/format'], function(format) {
             }
             // http://www.w3.org/International/questions/qa-scripts
             // Arabic, Hebrew, Farsi, Pashto, Urdu
-            return rtlList.indexOf(language) >= 0 ? 'rtl' : 'ltr';
+            return RTL_LIST.indexOf(language) >= 0 ? 'rtl' : 'ltr';
         },
         gettext: get,
         ngettext: nget,
