@@ -58,7 +58,7 @@ define('core/capabilities', ['core/settings'], function(settings) {
         'firefoxOS': navigator.mozApps && navigator.mozApps.installPackage &&
                      navigator.userAgent.indexOf('Android') === -1 &&
                      (navigator.userAgent.indexOf('Mobile') !== -1 || navigator.userAgent.indexOf('Tablet') !== -1),
-        'phantom': navigator.userAgent.match(/(Phantom|Slimer)/),  // Don't use this if you can help it.
+        'phantom': !!navigator.userAgent.match(/(Phantom|Slimer)/),  // Don't use this if you can help it.
         'detectOS': detectOS,
         'os': detectOS(),
     };
