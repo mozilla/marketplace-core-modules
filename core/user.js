@@ -12,22 +12,18 @@ define('core/user',
         'developed': []
     };
 
-    var save_to_ls = !capabilities.phantom;
+    // Try to initialize items from localStorage.
+    token = storage.getItem('user');
+    user_settings = storage.getItem('settings') || {};
+    permissions = storage.getItem('permissions') || {};
 
-    if (save_to_ls) {
-        // Try to initialize items from localStorage.
-        token = storage.getItem('user');
-        user_settings = storage.getItem('settings') || {};
-        permissions = storage.getItem('permissions') || {};
-
-        var _stored = storage.getItem('user_apps');
-        if (_stored) {
-            apps = _stored;
-        }
-
-        log.unmention(token);
-        save_user_settings();
+    var _stored = storage.getItem('user_apps');
+    if (_stored) {
+        apps = _stored;
     }
+
+    log.unmention(token);
+    save_user_settings();
 
     function clear_user_settings() {
         user_settings = {};
@@ -93,10 +89,7 @@ define('core/user',
         // Make sure that we don't ever log the user token.
         log.unmention(new_token);
 
-        // If we're allowed to save to localStorage, do that now.
-        if (save_to_ls) {
-            storage.setItem('user', token);
-        }
+        storage.setItem('user', token);
 
         // Update the user's settings with the ones that are in the
         // login API response.
@@ -104,12 +97,8 @@ define('core/user',
     }
 
     function save_user_settings() {
-        if (save_to_ls) {
-            logger.log('Saving settings');
-            storage.setItem('settings', user_settings);
-        } else {
-            logger.log('settings not saved');
-        }
+        logger.log('Saving settings');
+        storage.setItem('settings', user_settings);
     }
 
     function update_user_settings(data) {
@@ -122,12 +111,8 @@ define('core/user',
     }
 
     function save_permissions() {
-        if (save_to_ls) {
-            logger.log('Saving perms');
-            storage.setItem('permissions', permissions);
-        } else {
-            logger.log('Perms not saved');
-        }
+        logger.log('Saving perms');
+        storage.setItem('permissions', permissions);
     }
 
     function update_permissions(data) {
@@ -161,12 +146,8 @@ define('core/user',
     }
 
     function save_apps() {
-        if (save_to_ls) {
-            logger.log('Saving apps');
-            storage.setItem('user_apps', apps);
-        } else {
-            logger.log('Apps not saved');
-        }
+        logger.log('Saving apps');
+        storage.setItem('user_apps', apps);
     }
 
     function hasLoggedIn() {
