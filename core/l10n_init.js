@@ -39,7 +39,7 @@ define('core/l10n_init',
         script.src = getLocaleSrc(locale);
         script.onload = function() {
             // Add body class for RTL.
-            z.body.addClass('l10n--direction-' + l10n.getDirection());
+            z.body.addClass('l10n--' + l10n.getDirection());
             l10nInitialized.resolve(locale, script);
         };
         script.onerror = function() {
