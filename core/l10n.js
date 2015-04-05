@@ -59,8 +59,14 @@ define('core/l10n',
 
     return {
         getDirection: function(context) {
-            var language = context ? context.language :
-                                     window.navigator.l10n.language;
+            // Try to get browser language, if undefined use default locale.
+            var language;
+            if (context) {
+                language = context.language;
+            } else {
+                language = window.navigator.l10n ? window.navigator.l10n.language :
+                                                  'en-US';
+            }
             if (language.indexOf('-') > -1) {
                 language = language.split('-')[0];
             }
