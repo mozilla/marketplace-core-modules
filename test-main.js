@@ -46,7 +46,7 @@ require.config({
     // Karma serves files under /base, the basePath from your config file.
     baseUrl: '/base',
     paths: {
-        'jquery': 'bower_components/jquery/jquery',
+        'jquery': 'bower_components/marketplace-jquery/jquery',
         'Squire': 'bower_components/squire/src/Squire',
         'underscore': 'bower_components/underscore/underscore'
     },
