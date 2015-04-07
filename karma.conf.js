@@ -17,7 +17,7 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         files: [
             'test-main.js',
-            'bower_components/jquery/jquery.js',
+            'bower_components/marketplace-jquery/jquery.js',
             'bower_components/underscore/underscore.js',
             {pattern: 'bower_components/squire/src/Squire.js', included: false},
             {pattern: 'core/*.js', included: false},
