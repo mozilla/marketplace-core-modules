@@ -1,6 +1,6 @@
 define('tests/l10n_init',
-    ['core/l10n_init'],
-    function(l10n_init) {
+    ['core/l10n_init', 'Squire'],
+    function(l10n_init, Squire) {
 
     function MockDoc() {
         // Mock doc.body.getAttribute to test with different data-attrs.
@@ -109,6 +109,26 @@ define('tests/l10n_init',
             assert.equal(
                 l10n_init.getLocaleSrc('en-US', doc),
                 'https://cdn.example.com/somewhere/bar/locales/en-US.js?b=4815162342');
+        });
+    });
+
+    describe('l10n_init.languages', function() {
+        it('uses data-languages on <body>', function(done) {
+            document.body.setAttribute('data-languages', '["foo","bar"]');
+            new Squire().require(['core/l10n_init'], function(l10n_init) {
+                assert.deepEqual(l10n_init.languages, ['foo', 'bar']);
+                document.body.removeAttribute('data-languages');
+                done();
+            });
+        });
+
+        it('uses default languages without data-languages', function(done) {
+            document.body.removeAttribute('data-languages');
+            new Squire().require(['core/l10n_init'], function(l10n_init) {
+                // Don't look for specific languages, just that we have some.
+                assert(l10n_init.languages.length > 20);
+                done();
+            });
         });
     });
 });

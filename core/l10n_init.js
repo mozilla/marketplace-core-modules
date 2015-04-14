@@ -24,8 +24,8 @@ define('core/l10n_init',
         languages = [
             'bg', 'bn-BD', 'ca', 'cs', 'da', 'de', 'el', 'en-US', 'es', 'eu',
             'fr', 'ga-IE', 'hr', 'hu', 'it', 'ja', 'ko', 'mk', 'nb-NO', 'nl',
-            'pa', 'pl', 'pt-BR', 'ro', 'ru', 'sk', 'sq', 'sr', 'sr-Latn', 'ta',
-            'tr', 'xh', 'zh-CN', 'zh-TW', 'zu', 'dbg'
+            'pa', 'pl', 'pt-BR', 'ro', 'rtl', 'ru', 'sk', 'sq', 'sr',
+            'sr-Latn', 'ta', 'tr', 'xh', 'zh-CN', 'zh-TW', 'zu', 'dbg'
         ];
     }
 
@@ -40,6 +40,8 @@ define('core/l10n_init',
         script.onload = function() {
             // Add body class for RTL.
             z.body.addClass('l10n--' + l10n.getDirection());
+            document.documentElement.setAttribute('dir', l10n.getDirection());
+            document.documentElement.setAttribute('lang', locale);
             l10nInitialized.resolve(locale, script);
         };
         script.onerror = function() {

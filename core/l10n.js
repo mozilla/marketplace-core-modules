@@ -12,7 +12,7 @@
 define('core/l10n',
     ['core/format'],
     function(format) {
-    var RTL_LIST = ['ar', 'he', 'fa', 'ps', 'ur'];
+    var RTL_LIST = ['ar', 'he', 'fa', 'ps', 'rtl', 'ur'];
 
     function get(str, args, context) {
         context = context || navigator;
