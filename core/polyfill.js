@@ -16,4 +16,13 @@ define('core/polyfill', [], function() {
             return +new Date();
         };
     }
+
+    // IE Custom Event polyfill.
+    CustomEvent = function(event, params) {
+        params = params || {};
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent(event, params.bubbles, params.cancelable,
+                            params.detail);
+        return evt;
+    };
 });
