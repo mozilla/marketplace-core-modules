@@ -6,7 +6,7 @@ define('core/element_utils',
     function(polyfill) {
     'use strict';
 
-    function forEach(nodeList, cb) {
+    function each(nodeList, cb) {
         // Node list iteration helper.
         for (var i = 0; nodeList && (i < nodeList.length); i++) {
             cb(nodeList[i], i);
@@ -34,6 +34,8 @@ define('core/element_utils',
         } else {
             element.classList.toggle(className);
         }
+
+        return element;
     }
 
     function updateActiveNode(element, activeNodeClass, path) {
@@ -49,6 +51,8 @@ define('core/element_utils',
         for (i = 0; activeLinks && (i < activeLinks.length); i++) {
             activeLinks[i].classList.add(activeNodeClass);
         }
+
+        return element;
     }
 
     function proxyInterface(destObj, properties, methods, key) {
@@ -78,7 +82,7 @@ define('core/element_utils',
     }
 
     return {
-        forEach: forEach,
+        each: each,
         MktEvent: MktEvent,
         toggleClass: toggleClass,
         proxyInterface: proxyInterface,

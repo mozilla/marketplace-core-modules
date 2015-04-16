@@ -2,7 +2,7 @@ define('tests/element_utils',
     ['core/element_utils'],
     function(eUtils) {
 
-    describe('forEach', function() {
+    describe('each', function() {
         it('iterates over NodeList', function() {
             var e1 = document.createElement('a');
             var e2 = document.createElement('a');
@@ -10,7 +10,7 @@ define('tests/element_utils',
             div.appendChild(e1);
             div.appendChild(e2);
 
-            eUtils.forEach(div.querySelectorAll('a'), function(a) {
+            eUtils.each(div.querySelectorAll('a'), function(a) {
                 assert.equal(a.tagName, 'A');
                 assert.equal(a.parentNode, div);
             });
