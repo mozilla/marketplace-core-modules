@@ -41,16 +41,18 @@ define('core/element_utils',
     function updateActiveNode(element, activeNodeClass, path) {
         // Remove highlights from formerly-active nodes.
         var links = element.querySelectorAll('a.' + activeNodeClass);
-        for (var i = 0; links && (i < links.length); i++) {
-            links[i].classList.remove(activeNodeClass);
-        }
+        each(links, function(link) {
+            link.classList.remove(activeNodeClass);
+        });
 
         // Highlight new active nodes based on current page.
         var activeLinks = element.querySelectorAll(
             'a[href="' + (path || window.location.pathname) + '"]');
-        for (i = 0; activeLinks && (i < activeLinks.length); i++) {
-            activeLinks[i].classList.add(activeNodeClass);
-        }
+        each(activeLinks, function(activeLink) {
+            if (!activeLink.hasAttribute('data-nav-no-active-node')) {
+                activeLink.classList.add(activeNodeClass);
+            }
+        });
 
         return element;
     }
