@@ -38,8 +38,7 @@ define('core/l10n_init',
         var script = document.createElement('script');
         script.src = getLocaleSrc(locale);
         script.onload = function() {
-            // Add body class for RTL.
-            z.body.addClass('l10n--' + l10n.getDirection());
+            // Add html[dir].
             document.documentElement.setAttribute('dir', l10n.getDirection());
             document.documentElement.setAttribute('lang', locale);
             l10nInitialized.resolve(locale, script);
