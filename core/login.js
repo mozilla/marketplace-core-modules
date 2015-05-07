@@ -109,10 +109,7 @@ define('core/login',
         if (capabilities.yulelogFxA()) {
             window.top.postMessage({type: 'fxa-request'}, packaged_origin);
         } else if (capabilities.fallbackFxA()) {
-            var fxa_url = settings.fxa_auth_url;
-            if (opt.register) {
-                fxa_url = utils.urlparams(fxa_url, {action: 'signup'});
-            }
+            var fxa_url = fxa_redirect_url({register: opt.register});
 
             if (opt.popupWindow) {
                 console.log('Changing location of supplied window to', fxa_url);
@@ -274,8 +271,15 @@ define('core/login',
         });
     }
 
+    function fxa_redirect_url(opt) {
+        opt = opt || {};
+        var action = opt.register ? 'signup' : 'signin';
+        return utils.urlparams(settings.fxa_auth_url, {action: action});
+    }
+
     return {
         login: startLogin,
+        fxa_redirect_url: fxa_redirect_url,
         get_fxa_auth_url: get_fxa_auth_url,
         handle_fxa_login: handle_fxa_login,
     };
