@@ -30,13 +30,19 @@ define('core/login',
 
     function logOut() {
         cache.flush_signed();
+        var isLoggedIn = false;
+        if (storage.getItem('user')) {
+            isLoggedIn = true;
+        }
         user.clear_token();
 
         z.body.removeClass('logged-in');
         z.page.trigger('reload_chrome').trigger('before_logout');
         if (!z.context.dont_reload_on_login) {
             z.page.trigger('logged_out');
-            signOutNotification();
+            if (isLoggedIn) {
+                signOutNotification();
+            }
             views.reload();
         } else {
             console.log('Reload on logout aborted by current view');
