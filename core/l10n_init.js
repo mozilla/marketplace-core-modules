@@ -22,9 +22,9 @@ define('core/l10n_init',
         languages = JSON.parse(bodyLangs);
     } else {
         languages = [
-            'bg', 'bn-BD', 'ca', 'cs', 'da', 'de', 'el', 'en-US', 'es', 'eu',
-            'fr', 'ga-IE', 'hr', 'hu', 'it', 'ja', 'ko', 'mk', 'nb-NO', 'nl',
-            'pa', 'pl', 'pt-BR', 'ro', 'rtl', 'ru', 'sk', 'sq', 'sr',
+            'ar', 'bg', 'bn-BD', 'ca', 'cs', 'da', 'de', 'el', 'en-US', 'es',
+            'eu', 'fr', 'ga-IE', 'hr', 'hu', 'it', 'ja', 'ko', 'mk', 'nb-NO',
+            'nl', 'pa', 'pl', 'pt-BR', 'ro', 'rtl', 'ru', 'sk', 'sq', 'sr',
             'sr-Latn', 'ta', 'tr', 'xh', 'zh-CN', 'zh-TW', 'zu', 'dbg'
         ];
     }
