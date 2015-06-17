@@ -107,6 +107,16 @@ define('core/builder',
             fire(page, 'fragment_load_failed', data);
         }
 
+        function storeModelData(data, as) {
+            if (typeof as === 'function') {
+                data.forEach(function(obj) {
+                    models(as(obj)).cast(obj);
+                });
+            } else {
+                models(as).cast(data);
+            }
+        }
+
         // Defer blocks.
         // Adds a custom Nunjucks extension. Nunjucks compiler had to be hacked
         // to allow this (in mozilla/commonplace).
@@ -138,7 +148,7 @@ define('core/builder',
                         // `as` passes data to models for caching.
                         if (data && !dont_cast && 'as' in signature) {
                             logger.groupCollapsed('Casting ' + signature.as + 's to model cache...');
-                            models(signature.as).cast(data);
+                            storeModelData(data, signature.as);
                             logger.groupEnd();
                         }
 
@@ -175,7 +185,13 @@ define('core/builder',
                             if (data && 'as' in signature) {
                                 var resp = data;
                                 var plucked = 'pluck' in signature;
-                                var uncaster = models(signature.as).uncast;
+                                var uncaster = function(obj) {
+                                    if (typeof signature.as === 'function') {
+                                        return models(signature.as(obj)).uncast(obj);
+                                    } else {
+                                        return models(signature.as).uncast(obj);
+                                    }
+                                };
 
                                 if (plucked) {
                                     resp = resp[signature.pluck];
@@ -193,10 +209,7 @@ define('core/builder',
                                 // else: can't model cache requests with no
                                 // pluck and aren't an array. :(
 
-                                // Update model cache in bg (bug 995288).
-                                pool.get(url).done(function(data) {
-                                    models(signature.as).cast(data);
-                                });
+                                storeModelData(resp, signature.as);
                             }
                         });
 
