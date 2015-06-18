@@ -6,11 +6,14 @@ define('core/capabilities', ['core/settings'], function(settings) {
 
     var osInfo = {
         windows: {
-            name: 'Windows', regex: /Windows/, slug: 'windows',
+            name: 'Windows', regex: /Windows NT/, slug: 'windows',
         },
         mac: {
-            name: 'Mac OS X', regex: /Mac OS X 10[_\.](\d+)/, slug: 'mac',
+            name: 'Mac OS X', regex: /Macintosh/, slug: 'mac',
+            // FIXME: We still want to get the version number.
+            // name: 'Mac OS X', regex: /Mac OS X 10[_\.](\d+)/, slug: 'mac',
         },
+        // FIXME: Check for android first as it claims to be Linux.
         linux: {
             name: 'Linux', regex: /Linux/, slug: 'linux',
         },
@@ -50,6 +53,7 @@ define('core/capabilities', ['core/settings'], function(settings) {
         'chromeless': !!(window.locationbar && !window.locationbar.visible),
         'userAgent': navigator.userAgent,
         'widescreen': function() { return safeMatchMedia('(min-width: 710px)'); },
+        'android': navigator.userAgent.indexOf('Android') !== -1,
         'firefoxAndroid': navigator.userAgent.indexOf('Firefox') !== -1 && navigator.userAgent.indexOf('Android') !== -1,
         'touch': !!(('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch),
         'performance': !!(window.performance || window.msPerformance || window.webkitPerformance || window.mozPerformance),
@@ -108,17 +112,20 @@ define('core/capabilities', ['core/settings'], function(settings) {
         caps = caps || static_caps;
         if (caps.firefoxOS) {
             return 'firefoxos';
-        } else if (caps.firefoxAndroid) {
+        } else if (caps.android) {
             return 'android';
+        } else if (['windows', 'mac', 'linux'].indexOf(caps.os.slug) !== -1) {
+            return 'desktop';
+        } else {
+            return 'other';
         }
-        return 'desktop';
     };
 
     /* Returns device form factor alone, i.e. 'tablet' or 'mobile' ('device' API parameter).
      * Only supported for Android currently. */
     static_caps.device_formfactor = function(caps) {
         caps = caps || static_caps;
-        if (caps.firefoxAndroid) {
+        if (caps.firefoxAndroid || caps.device_platform() === 'other') {
             if (caps.widescreen()) {
                 return 'tablet';
             }
