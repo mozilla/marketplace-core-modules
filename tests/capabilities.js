@@ -132,64 +132,92 @@ define('tests/capabilities',
     });
 
     describe('capabilities.os', function() {
-        it('handles Mac 10.9 Firefox', function() {
-            var navigator = {
+        var operatingSystems = [
+            {
+                description: 'Mac 10.9 Firefox',
                 userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:23.0) Gecko/20100101 Firefox/23.0',
-            };
-            var os = capabilities.detectOS(navigator);
-            assert.equal(os.name, 'Mac OS X');
-            assert.strictEqual(os.version, 9);
-            assert.equal(os.slug, 'mac');
-        });
-
-        it('handles Mac 10.10 Firefox', function() {
-            var navigator = {
+                name: 'Mac OS X',
+                version: 9,
+                slug: 'mac',
+                type: 'desktop',
+            },
+            {
+                description: 'Mac 10.10 Firefox',
                 userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:23.0) Gecko/20100101 Firefox/23.0',
-            };
-            var os = capabilities.detectOS(navigator);
-            assert.equal(os.name, 'Mac OS X');
-            assert.strictEqual(os.version, 10);
-            assert.equal(os.slug, 'mac');
-        });
-
-        it('handles Mac 10.9 Safari', function() {
-            var navigator = {
+                name: 'Mac OS X',
+                version: 10,
+                slug: 'mac',
+                type: 'desktop',
+            },
+            {
+                description: 'Mac 10.9 Safari',
                 userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/600.2.5 (KHTML, like Gecko) Version/7.1.2 Safari/537.85.11',
-            };
-            var os = capabilities.detectOS(navigator);
-            assert.equal(os.name, 'Mac OS X');
-            assert.strictEqual(os.version, 9);
-            assert.equal(os.slug, 'mac');
-        });
-
-        it('handles Windows IE 9', function() {
-            var navigator = {
+                name: 'Mac OS X',
+                version: 9,
+                slug: 'mac',
+                type: 'desktop',
+            },
+            {
+                description: 'Windows IE 9',
                 userAgent: 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)',
-            };
-            var os = capabilities.detectOS(navigator);
-            assert.equal(os.name, 'Windows');
-            assert.strictEqual(os.version, undefined);
-            assert.equal(os.slug, 'windows');
-        });
-
-        it('handles Linux Firefox', function() {
-            var navigator = {
+                name: 'Windows',
+                version: undefined,
+                slug: 'windows',
+                type: 'desktop',
+            },
+            {
+                description: 'Linux Firefox',
                 userAgent: 'Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0',
-            };
-            var os = capabilities.detectOS(navigator);
-            assert.equal(os.name, 'Linux');
-            assert.strictEqual(os.version, undefined);
-            assert.equal(os.slug, 'linux');
-        });
-
-        it('handles Android Firefox', function() {
-            var navigator = {
+                name: 'Linux',
+                version: undefined,
+                slug: 'linux',
+                type: 'desktop',
+            },
+            {
+                description: 'Android Firefox',
                 userAgent: 'Mozilla/5.0 (Android; Mobile; rv:26.0) Gecko/26.0 Firefox/26.0',
-            };
-            var os = capabilities.detectOS(navigator);
-            assert.equal(os.name, 'Android');
-            assert.strictEqual(os.version, undefined);
-            assert.equal(os.slug, 'android');
+                name: 'Android',
+                version: undefined,
+                slug: 'android',
+                type: 'mobile',
+            },
+            {
+                description: 'Android Chrome',
+                userAgent: 'Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.114 Mobile Safari/537.36',
+                name: 'Android',
+                version: undefined,
+                slug: 'android',
+                type: 'mobile',
+            },
+            {
+                description: 'Windows Phone IE',
+                userAgent: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; IEMobile/10.0; ARM; Touch; NOKIA; Lumia 520)',
+                name: undefined,
+                version: undefined,
+                slug: undefined,
+                type: undefined,
+            },
+            {
+                description: 'iPhone 6 Safari',
+                userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4',
+                name: undefined,
+                version: undefined,
+                slug: undefined,
+                type: undefined,
+            },
+        ];
+
+        operatingSystems.forEach(function(os) {
+            it('detects ' + os.description, function() {
+                var navigator = {
+                    userAgent: os.userAgent,
+                };
+                var detected = capabilities.detectOS(navigator);
+                assert.equal(detected.name, os.name);
+                assert.strictEqual(detected.version, os.version);
+                assert.equal(detected.slug, os.slug);
+                assert.equal(detected.type, os.type);
+            });
         });
     });
 

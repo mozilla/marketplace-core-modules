@@ -4,33 +4,26 @@ define('core/capabilities', ['core/settings'], function(settings) {
         return !!m && m.matches;
     }
 
-    var osInfo = {
-        windows: {
-            name: 'Windows', regex: /Windows/, slug: 'windows',
-        },
-        mac: {
-            name: 'Mac OS X', regex: /Mac OS X 10[_\.](\d+)/, slug: 'mac',
-        },
-        linux: {
-            name: 'Linux', regex: /Linux/, slug: 'linux',
-        },
-        android: {
-            name: 'Android', regex: /Android/, slug: 'android',
-        },
-    };
+    var operatingSystems = [
+        // Detect Android before Linux, since Android says Linux.
+        {name: 'Android', regex: /Android/, slug: 'android', type: 'mobile'},
+        {name: 'Windows', regex: /Windows NT/, slug: 'windows', type: 'desktop'},
+        {name: 'Mac OS X', regex: /Mac OS X 10[_\.](\d+)/, slug: 'mac', type: 'desktop'},
+        {name: 'Linux', regex: /Linux/, slug: 'linux', type: 'desktop'},
+    ];
 
     function detectOS(navigator) {
         navigator = navigator || window.navigator;
         var matchData;
         var os;
-        var osNames = Object.keys(osInfo);
-        for (var i = 0; i < osNames.length; i++) {
-            os = osInfo[osNames[i]];
+        for (var i = 0; i < operatingSystems.length; i++) {
+            os = operatingSystems[i];
             matchData = os.regex.exec(navigator.userAgent);
             if (matchData) {
                 return {
                     name: os.name,
                     slug: os.slug,
+                    type: os.type,
                     // Return `undefined` not `NaN` if we don't detect version.
                     version: matchData[1] && parseInt(matchData[1], 10),
                 };
