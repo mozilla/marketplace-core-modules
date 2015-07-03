@@ -101,23 +101,24 @@ define('core/capabilities', ['core/settings'], function(settings) {
         caps = caps || static_caps;
         if (caps.firefoxOS) {
             return 'firefoxos';
-        } else if (caps.firefoxAndroid) {
+        } else if (caps.os.type === 'desktop') {
+            return 'desktop';
+        } else {
+            // Make everything else android so we can treat iPhone, iPad,
+            // Windows Phone, etc as mobile instead of desktop.
             return 'android';
         }
-        return 'desktop';
     };
 
-    /* Returns device form factor alone, i.e. 'tablet' or 'mobile' ('device' API parameter).
-     * Only supported for Android currently. */
+    /* Returns device form factor alone, i.e. 'tablet' or 'mobile' ('device'
+     * API parameter). Unsupported on FxOS and desktop. */
     static_caps.device_formfactor = function(caps) {
         caps = caps || static_caps;
-        if (caps.firefoxAndroid) {
-            if (caps.widescreen()) {
-                return 'tablet';
-            }
-            return 'mobile';
+        if (caps.firefoxOS || caps.os.type === 'desktop') {
+            return '';
+        } else {
+            return caps.widescreen() ? 'tablet' : 'mobile';
         }
-        return '';
     };
 
     /* Returns full device type information, e.g. 'android-mobile' or 'firefoxos' as exposed by the API. */
