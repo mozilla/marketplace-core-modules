@@ -4,17 +4,21 @@ define('tests/capabilities',
 
     describe('capabilities.device_platform', function() {
         it('can be firefoxos', function() {
-            var caps = {firefoxOS: true};
+            var caps = {firefoxOS: true, os: {type: ''}};
             assert.equal(capabilities.device_platform(caps), 'firefoxos');
         });
 
         it('can be android', function() {
-            var caps = {firefoxOS: false, firefoxAndroid: true};
+            var caps = {
+                firefoxOS: false,
+                firefoxAndroid: true,
+                os: {type: 'mobile'},
+            };
             assert.equal(capabilities.device_platform(caps), 'android');
         });
 
         it('can be desktop', function() {
-            var caps = {firefoxAndroid: false};
+            var caps = {firefoxAndroid: false, os: {type: 'desktop'}};
             assert.equal(capabilities.device_platform(caps), 'desktop');
         });
     });
@@ -25,6 +29,7 @@ define('tests/capabilities',
                 firefoxOS: true,
                 firefoxAndroid: false,
                 widescreen: function() { return false; },
+                os: {type: ''},
             };
             assert.equal(capabilities.device_formfactor(caps), '');
         });
@@ -34,6 +39,7 @@ define('tests/capabilities',
                 firefoxOS: true,
                 firefoxAndroid: false,
                 widescreen: function() { return true; },
+                os: {type: ''},
             };
             assert.equal(capabilities.device_formfactor(caps), '');
         });
@@ -43,6 +49,7 @@ define('tests/capabilities',
                 firefoxOS: false,
                 firefoxAndroid: true,
                 widescreen: function() { return false; },
+                os: {type: 'mobile'},
             };
             assert.equal(capabilities.device_formfactor(caps), 'mobile');
         });
@@ -52,26 +59,31 @@ define('tests/capabilities',
                 firefoxOS: false,
                 firefoxAndroid: true,
                 widescreen: function() { return true; },
+                os: {type: 'mobile'},
             };
+            // This becomes tablet because it is widescreen. The Android OS
+            // type is always set to `mobile`.
             assert.equal(capabilities.device_formfactor(caps), 'tablet');
         });
 
-        it('is nothing for other mobile', function() {
+        it('is mobile for other mobile', function() {
             var caps = {
                 firefoxOS: false,
                 firefoxAndroid: false,
                 widescreen: function() { return false; },
+                os: {type: ''},
             };
-            assert.equal(capabilities.device_formfactor(caps), '');
+            assert.equal(capabilities.device_formfactor(caps), 'mobile');
         });
 
-        it('is nothing for other tablet', function() {
+        it('is tablet for other tablet', function() {
             var caps = {
                 firefoxOS: false,
                 firefoxAndroid: false,
                 widescreen: function() { return true; },
+                os: {type: ''},
             };
-            assert.equal(capabilities.device_formfactor(caps), '');
+            assert.equal(capabilities.device_formfactor(caps), 'tablet');
         });
     });
 
@@ -81,6 +93,7 @@ define('tests/capabilities',
                 firefoxOS: true,
                 firefoxAndroid: false,
                 widescreen: function() { return false; },
+                os: {type: ''},
             };
             assert.equal(capabilities.device_type(caps), 'firefoxos');
         });
@@ -90,6 +103,7 @@ define('tests/capabilities',
                 firefoxOS: true,
                 firefoxAndroid: false,
                 widescreen: function() { return true; },
+                os: {type: ''},
             };
             assert.equal(capabilities.device_type(caps), 'firefoxos');
         });
@@ -99,6 +113,7 @@ define('tests/capabilities',
                 firefoxOS: false,
                 firefoxAndroid: true,
                 widescreen: function() { return false; },
+                os: {type: 'mobile'},
             };
             assert.equal(capabilities.device_type(caps), 'android-mobile');
         });
@@ -108,26 +123,29 @@ define('tests/capabilities',
                 firefoxOS: false,
                 firefoxAndroid: true,
                 widescreen: function() { return true; },
+                os: {type: 'mobile'},
             };
             assert.equal(capabilities.device_type(caps), 'android-tablet');
         });
 
-        it('is desktop on other mobile', function() {
+        it('is android-mobile on other mobile', function() {
             var caps = {
                 firefoxOS: false,
                 firefoxAndroid: false,
                 widescreen: function() { return false; },
+                os: {type: ''},
             };
-            assert.equal(capabilities.device_type(caps), 'desktop');
+            assert.equal(capabilities.device_type(caps), 'android-mobile');
         });
 
-        it('is desktop on other tablet', function() {
+        it('is android-tablet on other tablet', function() {
             var caps = {
                 firefoxOS: false,
                 firefoxAndroid: false,
                 widescreen: function() { return true; },
+                os: {type: ''},
             };
-            assert.equal(capabilities.device_type(caps), 'desktop');
+            assert.equal(capabilities.device_type(caps), 'android-tablet');
         });
     });
 
