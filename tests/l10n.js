@@ -1,18 +1,26 @@
 define('tests/l10n', ['core/l10n'], function(l10n) {
-    function MockNavigator(strings, pluralizer) {
-        this.l10n = {
-            strings: strings,
-            pluralize: pluralizer
-        };
-    }
+    var mockContext;
 
-    var mockContext = new MockNavigator(
-        {foo: {body: 'bar'},
-        formatted: {body: 'zip {zap}'},
-        sing: {plurals: ['zero {n}', 'one {n}']},
-        sing2: {plurals: ['zero {n} {asdf}', 'one {n} {asdf}']}},
-        function(n) {return n - 1 !== 0;}
-    );
+    beforeEach(function() {
+        mockContext = {
+            l10n: {
+                language: 'es',
+                strings: {
+                    'My String': 'El String',
+                    'Result': ['Resulto', 'N Resultos'],
+                    'Triple Result': ['Un Resulto', 'Dos Resultos', 'Resultos'],
+                    'No Plural Form String': 'NPFS',
+                    '{arg} String': '{arg} El String',
+                    'Plural {arg} String': ['Plurale El String',
+                                            'Plurale {arg} Los Stringos'],
+                    'Multiple Plurals': ['0{n}', '1{n}', '2{n}', '3{n}'],
+                },
+                pluralize: function(n) {
+                    return n - 1 !== 0;
+                }
+            }
+        };
+    });
 
     describe('l10n.getDirection', function() {
         it('handles language directions', function() {
@@ -31,29 +39,31 @@ define('tests/l10n', ['core/l10n'], function(l10n) {
 
     describe('l10n.gettext', function() {
         it('translates', function() {
-            assert.equal(l10n.gettext('foo', null, mockContext), 'bar');
+            assert.equal(l10n.gettext('My String', null, mockContext),
+                         'El String');
         });
 
         it('has a fallback', function() {
-            assert.equal(l10n.gettext('does not exist', null, mockContext),
-                         'does not exist');
+            assert.equal(l10n.gettext('Fallback', null, mockContext),
+                         'Fallback');
         });
 
         it('accepts args', function() {
-            assert.equal(l10n.gettext('formatted', {zap: 123}, mockContext),
-                         'zip 123');
+            assert.equal(l10n.gettext('{arg} String', {arg: 30}, mockContext),
+                         '30 El String');
         });
 
         it('has fallback args', function() {
-            assert.equal(l10n.gettext('does not {exist}', {exist: 123},
+            assert.equal(l10n.gettext('Does not {exist}', {exist: 123},
                                       mockContext),
-                         'does not 123');
+                         'Does not 123');
         });
     });
 
     describe('10n.gettext_lazy', function() {
         it('translates', function() {
-            assert.equal(l10n.gettext_lazy('foo', null, mockContext), 'bar');
+            assert.equal(l10n.gettext_lazy('My String', null, mockContext),
+                         'El String');
         });
 
         it('has a fallback', function() {
@@ -64,8 +74,8 @@ define('tests/l10n', ['core/l10n'], function(l10n) {
 
         it('accepts args', function() {
             assert.equal(
-                l10n.gettext_lazy('formatted', {zap: 123}, mockContext),
-                'zip 123');
+                l10n.gettext_lazy('{arg} String', {arg: 123}, mockContext),
+                '123 El String');
         });
 
         it('has fallback args', function() {
@@ -78,53 +88,62 @@ define('tests/l10n', ['core/l10n'], function(l10n) {
 
         it('is evaluated when it is used', function() {
             var context = {l10n: {strings: {foo: {body: 'bar'}}}};
-            var translated = l10n.gettext_lazy('foo', null, context);
-            context.l10n.strings.foo.body = 'changed';
+            var translated = l10n.gettext_lazy('My String', null, context);
+            context.l10n.strings['My String'] = 'changed';
             assert.equal(translated, 'changed');
         });
     });
 
     describe('l10n.ngettext', function() {
         it('translates plurals', function() {
-            assert.equal(l10n.ngettext('sing', 'plural', {n: 1},
+            assert.equal(l10n.ngettext('Result', 'plural', {n: 1},
                                        mockContext),
-                         'zero 1');
-            assert.equal(l10n.ngettext('sing', 'plural', {n: 2},
+                         'Resulto');
+            assert.equal(l10n.ngettext('Result', 'plural', {n: 2},
                                        mockContext),
-                         'one 2');
+                         'N Resultos');
         });
 
         it('can have multiple pluralizations', function() {
-            var mockContext = new MockNavigator(
-                {sing: {plurals: ['0{n}', '1{n}', '2{n}', '3{n}']}},
-                function(n) {return n;}
-            );
-            assert.equal(l10n.ngettext('sing', 'plural', {n: 0}, mockContext),
+            mockContext.l10n.pluralize = function(n) {
+                return n;
+            };
+            assert.equal(l10n.ngettext('Multiple Plurals', 'plural', {n: 0},
+                                       mockContext),
                          '00');
-            assert.equal(l10n.ngettext('sing', 'plural', {n: 1}, mockContext),
+            assert.equal(l10n.ngettext('Multiple Plurals', 'plural', {n: 1},
+                                       mockContext),
                          '11');
-            assert.equal(l10n.ngettext('sing', 'plural', {n: 2}, mockContext),
+            assert.equal(l10n.ngettext('Multiple Plurals', 'plural', {n: 2},
+                                       mockContext),
                          '22');
-            assert.equal(l10n.ngettext('sing', 'plural', {n: 3}, mockContext),
+            assert.equal(l10n.ngettext('Multiple Plurals', 'plural', {n: 3},
+                                       mockContext),
                          '33');
         });
 
         it('has a fallback', function() {
-            assert.equal(l10n.ngettext('foo {n}', 'bar {n}', {n: 1},
+            assert.equal(l10n.ngettext('Does Not Exist {n}',
+                                       'Plural Does Not Exist {n}', {n: 1},
                                        mockContext),
-                         'foo 1');
-            assert.equal(l10n.ngettext('foo {n}', 'bar {n}', {n: 2},
+                         'Does Not Exist 1');
+            assert.equal(l10n.ngettext('Does Not Exist {n}',
+                                       'Plural Does Not Exist {n}', {n: 2},
                                        mockContext),
-                         'bar 2');
+                         'Plural Does Not Exist 2');
         });
 
         it('accepts args', function() {
-            assert.equal(l10n.ngettext('sing2', 'sang2', {n: 1, asdf: 'bar'},
+            assert.equal(l10n.ngettext('Plural {arg} String',
+                                       'Plural {arg} Strings',
+                                       {n: 1, arg: '45'},
                                        mockContext),
-                         'zero 1 bar');
-            assert.equal(l10n.ngettext('sing2', 'sang2', {n: 2, asdf: 'bar'},
+                         'Plurale El String');
+            assert.equal(l10n.ngettext('Plural {arg} String',
+                                       'Plural {arg} Strings',
+                                       {n: 2, arg: '45'},
                                        mockContext),
-                         'one 2 bar');
+                         'Plurale 45 Los Stringos');
         });
 
         it('has fallback args', function() {
@@ -138,8 +157,9 @@ define('tests/l10n', ['core/l10n'], function(l10n) {
 
         it('errors without n argument', function(done, fail) {
             try {
-                console.error(l10n.ngettext('singular', 'plural', {not_n: 1},
-                                            mockContext));
+                console.error(l10n.ngettext('Some String',
+                                            'Some Plural String',
+                                            {not_n: 1}, mockContext));
             } catch (e) {
                 return done();
             }
