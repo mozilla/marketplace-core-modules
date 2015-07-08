@@ -62,6 +62,8 @@ define('core/l10n_init',
     }
 
     function _transformLocale(locale) {
+        // Use default locale "en-US" if given locale is undefined.
+        locale = locale || 'en-US';
         // If it's in the list of locales, return it.
         if (languages.indexOf(locale) !== -1) {
             return locale;

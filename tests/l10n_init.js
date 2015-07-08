@@ -76,6 +76,11 @@ define('tests/l10n_init',
             // Potato matches
             assert.equal(l10n_init.getLocale('potato-LOCALE'), 'en-US');
         });
+
+        it('get undefined match', function() {
+            // Undefined matches
+            assert.equal(l10n_init.getLocale(undefined), 'en-US');
+        });
     });
 
     describe('l10n_init.getLocaleSrc', function() {
