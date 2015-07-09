@@ -29,6 +29,14 @@ define('core/l10n',
         return out;
     }
 
+    function get_lazy(str, args, context) {
+        return {
+            toString: function() {
+                return get(str, args, context);
+            },
+        };
+    }
+
     function nget(str, plural, args, context) {
         context = context || navigator;
         if (!args || !('n' in args)) {
@@ -75,6 +83,7 @@ define('core/l10n',
             return RTL_LIST.indexOf(language) >= 0 ? 'rtl' : 'ltr';
         },
         gettext: get,
+        gettext_lazy: get_lazy,
         ngettext: nget,
     };
 });
