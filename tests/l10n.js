@@ -51,6 +51,39 @@ define('tests/l10n', ['core/l10n'], function(l10n) {
         });
     });
 
+    describe('10n.gettext_lazy', function() {
+        it('translates', function() {
+            assert.equal(l10n.gettext_lazy('foo', null, mockContext), 'bar');
+        });
+
+        it('has a fallback', function() {
+            assert.equal(
+                l10n.gettext_lazy('does not exist', null, mockContext),
+                'does not exist');
+        });
+
+        it('accepts args', function() {
+            assert.equal(
+                l10n.gettext_lazy('formatted', {zap: 123}, mockContext),
+                'zip 123');
+        });
+
+        it('has fallback args', function() {
+            assert.equal(
+                l10n.gettext_lazy('does not {exist}',
+                                  {exist: 123},
+                                  mockContext),
+                'does not 123');
+        });
+
+        it('is evaluated when it is used', function() {
+            var context = {l10n: {strings: {foo: {body: 'bar'}}}};
+            var translated = l10n.gettext_lazy('foo', null, context);
+            context.l10n.strings.foo.body = 'changed';
+            assert.equal(translated, 'changed');
+        });
+    });
+
     describe('l10n.ngettext', function() {
         it('translates plurals', function() {
             assert.equal(l10n.ngettext('sing', 'plural', {n: 1},
