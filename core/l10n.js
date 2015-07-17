@@ -15,13 +15,11 @@ define('core/l10n',
     var RTL_LIST = ['ar', 'he', 'fa', 'ps', 'rtl', 'ur'];
 
     function get(str, args, context) {
+        // Look up the string given the ID.
         context = context || navigator;
         var out;
-        if (context.l10n && context.l10n.strings &&
-            str in context.l10n.strings) {
-            out = context.l10n.strings[str].body || str;
-        } else {
-            out = str;
+        if (context.l10n && context.l10n.strings) {
+            out = context.l10n.strings[str] || str;
         }
         if (args) {
             out = format.format(out, args);
@@ -38,6 +36,7 @@ define('core/l10n',
     }
 
     function nget(str, plural, args, context) {
+        // Look up a plural string given the ID and number.
         context = context || navigator;
         if (!args || !('n' in args)) {
             throw new Error('`n` not passed to ngettext');
@@ -48,13 +47,13 @@ define('core/l10n',
         var fallback = n === 1 ? str : plural;
         if (context.l10n && context.l10n.strings &&
             str in (strings = context.l10n.strings)) {
-            if (strings[str].plurals) {
+            if (strings[str].length) {
                 // +true is 1 / +false is 0
                 var plid = +context.l10n.pluralize(n);
-                out = strings[str].plurals[plid] || fallback;
+                out = strings[str][plid] || fallback;
             } else {
                 // Support languages like zh-TW which have no plural form.
-                out = strings[str].body || fallback;
+                out = strings[str] || fallback;
             }
         } else {
             out = fallback;
