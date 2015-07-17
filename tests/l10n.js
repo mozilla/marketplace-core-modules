@@ -165,5 +165,14 @@ define('tests/l10n', ['core/l10n'], function(l10n) {
             }
             fail();
         });
+
+        it('handles languages with no plurals', function() {
+            mockContext.pluralize = function(n) {
+                return n;
+            };
+            assert.equal(l10n.ngettext('My String', 'My Strings', {n: 1},
+                                       mockContext),
+                         'El String');
+        });
     });
 });

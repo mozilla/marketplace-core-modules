@@ -47,7 +47,7 @@ define('core/l10n',
         var fallback = n === 1 ? str : plural;
         if (context.l10n && context.l10n.strings &&
             str in (strings = context.l10n.strings)) {
-            if (strings[str].length) {
+            if (strings[str].constructor === Array && strings[str].length) {
                 // +true is 1 / +false is 0
                 var plid = +context.l10n.pluralize(n);
                 out = strings[str][plid] || fallback;
