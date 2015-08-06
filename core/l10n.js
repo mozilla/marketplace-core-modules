@@ -20,6 +20,8 @@ define('core/l10n',
         var out;
         if (context.l10n && context.l10n.strings) {
             out = context.l10n.strings[str] || str;
+        } else {
+            return str;
         }
         if (args) {
             out = format.format(out, args);
