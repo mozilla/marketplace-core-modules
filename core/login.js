@@ -21,11 +21,11 @@ define('core/login',
     }
 
     function signOutNotification() {
-        notification.notification({message: gettext('You have been signed out')});
+        notification.notification({message: gettext('You have been signed out.')});
     }
 
     function signInNotification() {
-        notification.notification({message: gettext('You have been signed in')});
+        notification.notification({message: gettext('You have been signed in.')});
     }
 
     function logOut() {
