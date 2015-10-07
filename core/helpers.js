@@ -116,6 +116,16 @@ define('core/helpers',
         logged_in: user.logged_in
     };
 
+    // Use '?lang=xx' param if present otherwise ask the browser.
+    function getLanguage() {
+        var params = utils.getVars();
+
+        if (params.lang) {
+            return params.lang;
+        }
+        return navigator.language ? navigator.language : 'en-US';
+    }
+
     // Functions provided in the default context.
     var helpers = {
         api: urls.api.url,
@@ -146,7 +156,7 @@ define('core/helpers',
         navigator: window.navigator,
         screen: window.screen,
         // TODO: Pull the default value from settings.
-        language: window.navigator.l10n ? window.navigator.l10n.language : 'en-US'
+        language: getLanguage()
     };
 
     // Put the helpers into the nunjucks global.
