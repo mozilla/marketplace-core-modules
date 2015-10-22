@@ -98,6 +98,14 @@ define('core/login',
     }).on('click', '.logout', utils._pd(function(e) {
         requests.del(urls.api.url('logout'));
 
+        // Sync with Marketplace React/Redux projects.
+        var redux = localStorage.getItem('redux');
+        if (redux) {
+          redux = JSON.parse(redux);
+          redux.user.token = null;
+          localStorage.setItem('redux', JSON.stringify(redux));
+        }
+
         if (capabilities.fallbackFxA()) {
             logOut();
         }
