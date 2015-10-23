@@ -102,8 +102,10 @@ define('core/login',
         var redux = localStorage.getItem('redux');
         if (redux) {
           redux = JSON.parse(redux);
-          redux.user.token = null;
-          localStorage.setItem('redux', JSON.stringify(redux));
+          if (redux.user && redux.user.token) {
+            redux.user.token = null;
+            localStorage.setItem('redux', JSON.stringify(redux));
+          }
         }
 
         if (capabilities.fallbackFxA()) {
