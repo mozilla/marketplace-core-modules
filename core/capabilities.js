@@ -89,7 +89,6 @@ define('core/capabilities', ['core/settings'], function(settings) {
     };
     static_caps.yulelogFxA = function() {
         return (static_caps.firefoxOS && window.top !== window.self &&
-                settings.switches.indexOf('native-firefox-accounts') !== -1 &&
                 navigator.userAgent.match(/rv:(\d{2})/)[1] >= 34);
     };
     static_caps.fallbackFxA = function() {
