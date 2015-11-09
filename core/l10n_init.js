@@ -41,7 +41,6 @@ define('core/l10n_init',
             // Add html[dir].
             document.documentElement.setAttribute('dir', l10n.getDirection());
             document.documentElement.setAttribute('lang', locale);
-            z.body.trigger('l10n_init--initialized');
             l10nInitialized.resolve(locale, script);
         };
         script.onerror = function() {
@@ -51,7 +50,6 @@ define('core/l10n_init',
                 window.navigator.l10n = {
                     language: 'en-US'
                 };
-                z.body.trigger('l10n_init--initialized');
                 l10nInitialized.resolve('en-US', script);
             } else {
                 // Fall back to en-US by trying to load the en-US locale.
@@ -59,6 +57,7 @@ define('core/l10n_init',
             }
         };
         document.body.appendChild(script);
+
         return l10nInitialized;
     }
 
