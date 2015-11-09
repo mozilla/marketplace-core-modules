@@ -149,6 +149,11 @@ define('core/helpers',
         language: window.navigator.l10n ? window.navigator.l10n.language : 'en-US'
     };
 
+    z.body.on('l10n_init--initialized', function() {
+      helpers.language = window.navigator.l10n ?
+                         window.navigator.l10n.language : 'en-US';
+    });
+
     // Put the helpers into the nunjucks global.
     var globals = nunjucks.require('globals');
     for (var i in helpers) {
