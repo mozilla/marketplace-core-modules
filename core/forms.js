@@ -2,13 +2,7 @@ define('core/forms', ['core/z'], function(z) {
 
     function checkValid(form) {
         if (form) {
-            
-            if($.trim( $(form).find('textarea').val() ) == '')
-            {
-                $(form).filter(':not([novalidate])').find('button[type=submit]').attr('disabled', true);
-                return;
-            }
-
+            $(form).find('textarea').val($.trim($(form).find('textarea').val()) === '' ? '' : $(form).find('textarea').val());
             $(form).filter(':not([novalidate])').find('button[type=submit]').attr('disabled', !form.checkValidity());
         }
     }
