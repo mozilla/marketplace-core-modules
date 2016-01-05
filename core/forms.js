@@ -2,7 +2,10 @@ define('core/forms', ['core/z'], function(z) {
 
     function checkValid(form) {
         if (form) {
-            $(form).filter(':not([novalidate])').find('button[type=submit]').attr('disabled', !form.checkValidity());
+            var $form = $(form);
+            var $textarea = $form.find('textarea');
+            $textarea.val($.trim($textarea.val()) === '' ? '' : $textarea.val());
+            $currentForm.filter(':not([novalidate])').find('button[type=submit]').attr('disabled', !form.checkValidity());
         }
     }
     // Note 'input' event is required for FF android (bug 977642)
