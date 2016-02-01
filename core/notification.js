@@ -55,6 +55,9 @@ define('core/notification',
         if (opts.closable) {
             addedClasses.push('closable');
         }
+        if (opts.negativeAction) {
+            addedClasses.push('negative-action');
+        }
         setTimeout(function() {notificationDef.reject();}, opts.timeout || 5000);
 
         notificationEl.addClass(addedClasses.join(' '));
