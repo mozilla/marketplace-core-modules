@@ -80,7 +80,12 @@ define('core/router',
             clearRoutes: function() {
                 exports.api.routes = {};
             },
-            routes: {},
+            routes: {
+                'fxa-login': '/api/v2/account/fxa-login/',
+                'login': '/api/v2/account/login/',
+                'logout': '/api/v2/account/logout/',
+                'site-config': '/api/v2/services/config/site/?serializer=commonplace'
+            },
         },
     };
 
